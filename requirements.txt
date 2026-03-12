@@ -1,7 +1,0 @@
-nextcord
-pytz
-python-dotenv
-flask
-gspread
-ping3
-psutil
