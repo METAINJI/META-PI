@@ -9,6 +9,16 @@ from ping3 import ping
 import datetime
 import traceback
 
+from flask import (
+    Flask,
+    session,
+    redirect,
+    request,
+    url_for,
+    send_file,
+    render_template_string
+)
+
 intents = nextcord.Intents.default()
 bot = commands.Bot(intents=intents)
 
@@ -154,6 +164,20 @@ async def 파이자리(
 
     await interaction.response.send_message(message)
 
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "✅ 봇이 온라인으로 전환되었습니다. 이제 이 창을 닫아도 됩니다."
+
+def run_web():
+    app.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    Thread(target=run_web).start()
+
+keep_alive()
+
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 if TOKEN is None:
@@ -161,3 +185,4 @@ if TOKEN is None:
     exit(1)
 
 bot.run(TOKEN)
+
