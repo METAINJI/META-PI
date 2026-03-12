@@ -119,9 +119,6 @@ async def 파이검색(
     context = PI[start:end]
     highlighted = context.replace(number, f"**{number}**")
 
-    arrow_pos = highlighted.find("**")
-    arrow = " " * arrow_pos + "^"
-
     message = (
         f"🔎 검색 결과: {number}\n\n"
         f"📍 위치: {pos} 번째 자리\n\n"
@@ -148,10 +145,7 @@ async def 파이자리(
     digit = PI[position]
 
     highlighted = context.replace(digit, f"**{digit}**", 1)
-
-    arrow_pos = highlighted.find("**")
-    arrow = " " * arrow_pos + "^"
-
+    
     message = (
         f"🔢 파이의 {position} 번째 자리\n\n"
         f"...{highlighted}...\n"
@@ -180,5 +174,6 @@ if TOKEN is None:
     exit(1)
 
 bot.run(TOKEN)
+
 
 
