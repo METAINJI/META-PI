@@ -8,7 +8,6 @@ import functools
 from ping3 import ping
 import datetime
 import traceback
-from threading import Thread
 
 from flask import (
     Flask,
@@ -125,10 +124,8 @@ async def 파이검색(
     message = (
         f"🔎 검색 결과: {number}\n\n"
         f"📍 위치: {pos} 번째 자리\n\n"
-        f"```text\n"
         f"...{highlighted}...\n"
         f"{arrow}\n"
-        f"```"
     )
 
     await interaction.response.send_message(message)
@@ -157,10 +154,8 @@ async def 파이자리(
 
     message = (
         f"🔢 파이의 {position} 번째 자리\n\n"
-        f"```text\n"
         f"...{highlighted}...\n"
         f"{arrow}\n"
-        f"```"
     )
 
     await interaction.response.send_message(message)
@@ -186,5 +181,3 @@ if TOKEN is None:
     exit(1)
 
 bot.run(TOKEN)
-
-
