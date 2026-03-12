@@ -8,6 +8,7 @@ import functools
 from ping3 import ping
 import datetime
 import traceback
+from threading import Thread
 
 from flask import (
     Flask,
@@ -181,3 +182,4 @@ if TOKEN is None:
     exit(1)
 
 bot.run(TOKEN)
+
