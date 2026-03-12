@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Pi Search</title>
+</head>
+<body>
+
+<h2>파이 검색</h2>
+
+<input id="num">
+<button onclick="search()">검색</button>
+
+<pre id="result"></pre>
+
+<script>
+
+async function search(){
+
+let q=document.getElementById("num").value
+
+let res=await fetch(`/search?q=${q}`)
+let data=await res.json()
+
+if(!data.found){
+document.getElementById("result").innerText="못찾음"
+return
+}
+
+document.getElementById("result").innerText=
+"위치: "+data.position+"\n\n"+data.context
+
+}
+
+</script>
+
+</body>
+</html>
