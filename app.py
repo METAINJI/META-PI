@@ -126,7 +126,6 @@ async def 파이검색(
         f"🔎 검색 결과: {number}\n\n"
         f"📍 위치: {pos} 번째 자리\n\n"
         f"...{highlighted}...\n"
-        f"{arrow}\n"
     )
 
     await interaction.response.send_message(message)
@@ -156,7 +155,6 @@ async def 파이자리(
     message = (
         f"🔢 파이의 {position} 번째 자리\n\n"
         f"...{highlighted}...\n"
-        f"{arrow}\n"
     )
 
     await interaction.response.send_message(message)
@@ -182,4 +180,5 @@ if TOKEN is None:
     exit(1)
 
 bot.run(TOKEN)
+
 
