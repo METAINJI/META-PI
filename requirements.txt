@@ -1,0 +1,4 @@
+nextcord
+fastapi
+uvicorn
+jinja2
