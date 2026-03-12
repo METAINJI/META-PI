@@ -1,3 +1,7 @@
-discord.py==2.3.2
+nextcord
 pytz
 python-dotenv
+flask
+gspread
+ping3
+psutil
