@@ -33,16 +33,11 @@ async def 파이검색(interaction: Interaction, number: str = SlashOption()):
     context = PI[start:end]
     highlighted = context.replace(number, f"**{number}**")
 
-    arrow = " " * highlighted.find("**") + "^"
-
     msg = f"""🔎 검색 결과
 
 위치: {pos}
 
-```text
-...{highlighted}...
-{arrow}
-```"""
+...{highlighted}..."""
 
     await interaction.response.send_message(msg)
 
@@ -58,17 +53,13 @@ async def 파이자리(interaction: Interaction, position: int = SlashOption()):
 
     highlighted = context.replace(digit, f"**{digit}**", 1)
 
-    arrow = " " * highlighted.find("**") + "^"
-
     msg = f"""🔢 {position}번째 자리
 
-```text
-...{highlighted}...
-{arrow}
-```"""
+```...{highlighted}..."""
 
     await interaction.response.send_message(msg)
 
 
 async def run_bot():
+
     await bot.start(TOKEN)
