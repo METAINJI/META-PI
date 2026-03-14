@@ -345,7 +345,7 @@ function showResult(){
 let pos=results[resultIndex]
 let value=document.getElementById("input").value
 
-fetch("/context?pos="+pos)
+fetch("/context?pos="+pos+"&length="+value.length)
 .then(r=>r.json())
 .then(data=>{
 
