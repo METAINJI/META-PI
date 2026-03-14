@@ -1,33 +1,175 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <title>Pi Search</title>
+
+<style>
+
+:root{
+--bg:#ffffff;
+--text:#000000;
+--box:#f3f3f3;
+}
+
+body.dark{
+--bg:#0f0f0f;
+--text:#ffffff;
+--box:#1c1c1c;
+}
+
+body{
+background:var(--bg);
+color:var(--text);
+font-family:Arial;
+text-align:center;
+margin-top:80px;
+}
+
+.box{
+background:var(--box);
+padding:25px;
+border-radius:12px;
+display:inline-block;
+width:420px;
+}
+
+input{
+width:80%;
+padding:10px;
+font-size:16px;
+}
+
+button{
+padding:10px 15px;
+margin-top:10px;
+cursor:pointer;
+}
+
+.result{
+margin-top:20px;
+white-space:pre-wrap;
+font-family:monospace;
+}
+
+.topbar{
+position:fixed;
+top:10px;
+right:10px;
+}
+
+</style>
 </head>
+
 <body>
 
-<h2>파이 검색</h2>
+<div class="topbar">
+<button onclick="toggleDark()">🌙</button>
+</div>
 
-<input id="num">
-<button onclick="search()">검색</button>
+<h1>π Pi Search</h1>
 
-<pre id="result"></pre>
+<div class="box">
+
+<select id="mode">
+<option value="search">숫자 검색</option>
+<option value="digit">자리 검색</option>
+</select>
+
+<br><br>
+
+<input id="input" placeholder="숫자 또는 자리 입력">
+
+<br>
+
+<button onclick="run()">검색</button>
+
+<br><br>
+
+<a href="https://discord.com/oauth2/authorize?client_id=1425638868626964540&scope=bot%20applications.commands&permissions=274877975552" target="_blank">
+<button>➕ 봇 초대</button>
+</a>
+
+<div id="result" class="result"></div>
+
+</div>
 
 <script>
 
-async function search(){
-
-let q=document.getElementById("num").value
-
-let res=await fetch(`/search?q=${q}`)
-let data=await res.json()
-
-if(!data.found){
-document.getElementById("result").innerText="못찾음"
-return
+function toggleDark(){
+document.body.classList.toggle("dark")
+localStorage.setItem("dark",document.body.classList.contains("dark"))
 }
 
-document.getElementById("result").innerText=
-"위치: "+data.position+"\n\n"+data.context
+if(localStorage.getItem("dark")==="true"){
+document.body.classList.add("dark")
+}
+
+async function run(){
+
+let mode=document.getElementById("mode").value
+let value=document.getElementById("input").value
+
+let url=""
+
+if(mode==="search"){
+url="/search?q="+value
+}else{
+url="/digit?position="+value
+}
+
+let res=await fetch(url)
+let data=await res.json()
+
+let out=""
+
+if(mode==="search"){
+
+if(!data.found){
+out="못 찾았습니다"
+}else{
+
+let ctx=data.context
+let q=value
+
+let index=ctx.indexOf(q)
+
+let highlighted=
+ctx.slice(0,index)+
+"["+q+"]"+
+ctx.slice(index+q.length)
+
+let arrow=" ".repeat(index)+"^"
+
+out=
+"위치: "+data.position+"\n\n"+
+"..."+highlighted+"...\n"+
+arrow
+
+}
+
+}else{
+
+let ctx=data.context
+let digit=data.digit
+
+let index=ctx.indexOf(digit)
+
+let highlighted=
+ctx.slice(0,index)+
+"["+digit+"]"+
+ctx.slice(index+1)
+
+let arrow=" ".repeat(index)+"^"
+
+out=
+"자리: "+data.position+"\n\n"+
+"..."+highlighted+"...\n"+
+arrow
+
+}
+
+document.getElementById("result").innerText=out
 
 }
 
