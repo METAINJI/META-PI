@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 <meta charset="UTF-8">
 <title>Pi Search</title>
@@ -7,55 +8,101 @@
 <style>
 
 :root{
---bg:#ffffff;
---text:#000000;
---box:#f3f3f3;
+--bg:#f4f6fb;
+--card:#ffffff;
+--text:#111;
+--accent:#5865f2;
+--border:#e2e5ea;
 }
 
 body.dark{
---bg:#0f0f0f;
---text:#ffffff;
---box:#1c1c1c;
+--bg:#0f1117;
+--card:#1c1f26;
+--text:#e6e6e6;
+--border:#2b2f36;
 }
 
 body{
+margin:0;
+font-family:system-ui;
 background:var(--bg);
 color:var(--text);
-font-family:Arial;
-text-align:center;
-margin-top:80px;
+transition:background .4s,color .4s;
 }
 
-.box{
-background:var(--box);
-padding:25px;
-border-radius:12px;
-display:inline-block;
-width:420px;
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:16px 40px;
+border-bottom:1px solid var(--border);
+background:var(--card);
 }
 
-input{
-width:80%;
-padding:10px;
+.logo{
+font-size:22px;
+font-weight:700;
+}
+
+.container{
+max-width:700px;
+margin:60px auto;
+padding:20px;
+}
+
+.card{
+background:var(--card);
+padding:30px;
+border-radius:14px;
+box-shadow:0 6px 18px rgba(0,0,0,0.08);
+margin-bottom:20px;
+transition:background .4s;
+}
+
+input,select{
+width:100%;
+padding:12px;
+border-radius:8px;
+border:1px solid var(--border);
+margin-top:10px;
 font-size:16px;
+background:transparent;
+color:var(--text);
 }
 
 button{
-padding:10px 15px;
-margin-top:10px;
+background:var(--accent);
+border:none;
+color:white;
+padding:10px 18px;
+border-radius:8px;
 cursor:pointer;
+margin-top:12px;
+}
+
+button.secondary{
+background:#777;
 }
 
 .result{
-margin-top:20px;
-white-space:pre-wrap;
 font-family:monospace;
+white-space:pre-wrap;
+margin-top:15px;
 }
 
-.topbar{
+.settings{
 position:fixed;
-top:10px;
-right:10px;
+right:20px;
+top:70px;
+background:var(--card);
+padding:15px;
+border-radius:10px;
+box-shadow:0 10px 25px rgba(0,0,0,0.2);
+display:none;
+}
+
+.fade{
+transition:all .3s ease;
 }
 
 </style>
@@ -63,88 +110,124 @@ right:10px;
 
 <body>
 
-<div class="topbar">
-<button onclick="toggleDark()">🌙</button>
-</div>
+<header>
+<div class="logo">π Pi Search</div>
 
-<h1>π Pi Search</h1>
-
-<div class="box">
-
-<select id="mode">
-<option value="search">숫자 검색</option>
-<option value="digit">자리 검색</option>
-</select>
-
-<br><br>
-
-<input id="input" placeholder="숫자 또는 자리 입력">
-
-<br>
-
-<button onclick="run()">검색</button>
-
-<br><br>
-
-<a href="https://discord.com/oauth2/authorize?client_id=1425638868626964540&scope=bot%20applications.commands&permissions=274877975552" target="_blank">
-<button>➕ 봇 초대</button>
+<div>
+<a href="YOUR_BOT_INVITE_LINK">
+<button>➕ Invite Bot</button>
 </a>
 
+<button onclick="toggleSettings()">⚙</button>
+</div>
+</header>
+
+<div class="settings fade" id="settings">
+
+<label>
+<input type="checkbox" id="darkToggle" onchange="toggleDark()">
+ Dark Mode
+</label>
+
+</div>
+
+<div class="container">
+
+<div class="card">
+
+<h2>Search in π</h2>
+
+<select id="mode">
+<option value="search">Number Search</option>
+<option value="digit">Digit Position</option>
+</select>
+
+<input id="input" placeholder="Enter number or position">
+
+<button onclick="run()">Search</button>
+<button class="secondary" onclick="randomPi()">Random</button>
+
+</div>
+
+<div class="card">
+
+<h3>Result</h3>
+
+<div id="time"></div>
+
 <div id="result" class="result"></div>
+
+<button onclick="copyResult()">Copy Result</button>
+
+</div>
 
 </div>
 
 <script>
 
+let settingsOpen=false
+
+function toggleSettings(){
+settingsOpen=!settingsOpen
+document.getElementById("settings").style.display=settingsOpen?"block":"none"
+}
+
 function toggleDark(){
+
 document.body.classList.toggle("dark")
-localStorage.setItem("dark",document.body.classList.contains("dark"))
+
+localStorage.setItem("dark",
+document.body.classList.contains("dark"))
+
 }
 
 if(localStorage.getItem("dark")==="true"){
 document.body.classList.add("dark")
+document.getElementById("darkToggle").checked=true
 }
 
 async function run(){
 
+let start=performance.now()
+
 let mode=document.getElementById("mode").value
 let value=document.getElementById("input").value
 
-let url=""
-
-if(mode==="search"){
-url="/search?q="+value
-}else{
-url="/digit?position="+value
-}
+let url=mode==="search"
+?"/search?q="+value
+:"/digit?position="+value
 
 let res=await fetch(url)
 let data=await res.json()
 
-let out=""
+let output=""
 
 if(mode==="search"){
 
 if(!data.found){
-out="❌ 찾지 못했습니다"
+output="Not found"
 }else{
 
 let ctx=data.context
-let q=value
+let i=ctx.indexOf(value)
 
-let index=ctx.indexOf(q)
+let highlight=
+ctx.slice(0,i)+"["+value+"]"+ctx.slice(i+value.length)
 
-let highlighted=
-ctx.slice(0,index)+
-"["+q+"]"+
-ctx.slice(index+q.length)
+let arrow=" ".repeat(i)+"^"
 
-let arrow=" ".repeat(index)+"^"
+output="Position: "+data.position+"\n\n"+
+  
+let prefix = data.start === 0 ? "" : "..."
+let suffix = "..."
 
-out=
-"위치: "+data.position+"\n\n"+
-"..."+highlighted+"...\n"+
-arrow
+if(data.start === 0){
+ctx = "3." + ctx.slice(1)
+}
+
+output =
+"Position: "+data.position+"\n\n"+
+prefix + highlight + suffix
 
 }
 
@@ -152,24 +235,51 @@ arrow
 
 let ctx=data.context
 let digit=data.digit
+let i=ctx.indexOf(digit)
 
-let index=ctx.indexOf(digit)
+let highlight=
+ctx.slice(0,i)+"["+digit+"]"+ctx.slice(i+1)
 
-let highlighted=
-ctx.slice(0,index)+
-"["+digit+"]"+
-ctx.slice(index+1)
+output="Digit: "+data.position+"\n\n"+
 
-let arrow=" ".repeat(index)+"^"
+let prefix = data.start === 0 ? "" : "..."
+let suffix = "..."
 
-out=
-"자리: "+data.position+"\n\n"+
-"..."+highlighted+"...\n"+
-arrow
+if(data.start === 0){
+ctx = "3." + ctx.slice(1)
+}
+
+output =
+"Digit: "+data.position+"\n\n"+
+prefix + highlight + suffix
 
 }
 
-document.getElementById("result").innerText=out
+let end=performance.now()
+
+document.getElementById("time").innerText=
+"Search time: "+((end-start)/1000).toFixed(3)+"s"
+
+document.getElementById("result").innerText=output
+
+}
+
+function randomPi(){
+
+let pos=Math.floor(Math.random()*1000000)
+
+document.getElementById("mode").value="digit"
+document.getElementById("input").value=pos
+
+run()
+
+}
+
+function copyResult(){
+
+navigator.clipboard.writeText(
+document.getElementById("result").innerText
+)
 
 }
 
