@@ -35,9 +35,9 @@ async def 파이검색(interaction: Interaction, number: str = SlashOption()):
 
     msg = f"""🔎 검색 결과
 
-위치: {pos}
+    위치: {pos}
 
-...{highlighted}..."""
+    ...{highlighted}..."""
 
     await interaction.response.send_message(msg)
 
@@ -55,7 +55,7 @@ async def 파이자리(interaction: Interaction, position: int = SlashOption()):
 
     msg = f"""🔢 {position}번째 자리
 
-```...{highlighted}..."""
+    ...{highlighted}..."""
 
     await interaction.response.send_message(msg)
 
