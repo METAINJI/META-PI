@@ -193,6 +193,9 @@ cursor:pointer;
 
 <script>
 
+let results=[]
+let resultIndex=0
+
 function toggleSettings(){
 
 const panel=document.getElementById("settings")
@@ -244,6 +247,9 @@ if(mode==="search"){
 if(!data.found){
 output="❌ 검색 결과가 없습니다"
 }else{
+
+results = data.positions
+resultIndex = 0
 
 let ctx=data.context
 let i=ctx.indexOf(value)
@@ -320,12 +326,6 @@ document.getElementById("input")
 .addEventListener("keypress",(e)=>{
 if(e.key==="Enter") run()
 })
-
-let results=[]
-let resultIndex=0
-
-results=data.positions
-resultIndex=0
 
 function nextResult(){
 
