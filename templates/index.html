@@ -342,20 +342,27 @@ showResult()
 
 function showResult(){
 
-let pos=results[resultIndex]
-let value=document.getElementById("input").value
+let pos = results[resultIndex]
+let value = document.getElementById("input").value
 
 fetch("/context?pos="+pos+"&length="+value.length)
 .then(r=>r.json())
 .then(data=>{
 
-let ctx=data.context
-let i=ctx.indexOf(value)
+let ctx = data.context
+let i = ctx.indexOf(value)
 
-let highlight=
+let highlight =
 ctx.slice(0,i)+"<b>"+value+"</b>"+ctx.slice(i+value.length)
 
-document.getElementById("result").innerHTML=highlight
+let prefix = data.start===0 ? "" : "..."
+let suffix = "..."
+
+let output =
+"위치: "+pos+"\n\n"+
+prefix+highlight+suffix
+
+document.getElementById("result").innerHTML = output
 
 })
 
