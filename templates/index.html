@@ -343,12 +343,19 @@ showResult()
 function showResult(){
 
 let pos=results[resultIndex]
+let value=document.getElementById("input").value
 
 fetch("/context?pos="+pos)
 .then(r=>r.json())
 .then(data=>{
 
-document.getElementById("result").innerHTML=data.context
+let ctx=data.context
+let i=ctx.indexOf(value)
+
+let highlight=
+ctx.slice(0,i)+"<b>"+value+"</b>"+ctx.slice(i+value.length)
+
+document.getElementById("result").innerHTML=highlight
 
 })
 
