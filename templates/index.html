@@ -51,6 +51,7 @@ padding:10px 16px;
 border-radius:8px;
 cursor:pointer;
 font-size:14px;
+margin-top:12px;
 }
 
 button.secondary{
@@ -68,7 +69,7 @@ background:var(--card);
 padding:30px;
 border-radius:14px;
 box-shadow:0 6px 18px rgba(0,0,0,0.08);
-margin-bottom:20px;
+margin-bottom:25px;
 transition:background .35s;
 }
  
@@ -101,7 +102,9 @@ color:var(--text);
 .result{
 font-family:monospace;
 white-space:pre-wrap;
-margin-top:15px;
+margin-top:20px;
+font-size:18px;
+line-height:1.6;
 }
 
 .settings{
@@ -237,14 +240,14 @@ let output=""
 if(mode==="search"){
 
 if(!data.found){
-output="검색 결과가 없습니다"
+output="❌ 검색 결과가 없습니다"
 }else{
 
 let ctx=data.context
 let i=ctx.indexOf(value)
 
 let highlight=
-ctx.slice(0,i)+"["+value+"]"+ctx.slice(i+value.length)
+ctx.slice(0,i)+"<b>"+value+"</b>"+ctx.slice(i+value.length)
 
 let prefix=data.start===0?"":"..."
 let suffix="..."
@@ -267,7 +270,7 @@ let digit=data.digit
 let i=ctx.indexOf(digit)
 
 let highlight=
-ctx.slice(0,i)+"["+digit+"]"+ctx.slice(i+1)
+ctx.slice(0,i)+"<b>"+digit+"</b>"+ctx.slice(i+1)
 
 let prefix=data.start===0?"":"..."
 let suffix="..."
@@ -288,7 +291,7 @@ let end=performance.now()
 document.getElementById("time").innerText=
 "검색 시간: "+((end-start)/1000).toFixed(3)+"초"
 
-document.getElementById("result").innerText=output
+document.getElementById("result").innerHTML=output
 
 }
 
