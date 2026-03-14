@@ -33,23 +33,6 @@ def search(q: str):
     return {
         "found": True,
         "position": pos,
-        "context": context
+        "context": context,
+        "start": start
     }
-
-
-@app.get("/digit")
-def digit(position: int):
-
-    digit = PI[position]
-
-    start = max(0, pos - CONTEXT)
-end = pos + len(q) + CONTEXT
-
-context = PI[start:end]
-
-return {
-    "found": True,
-    "position": pos,
-    "context": context,
-    "start": start
-}
