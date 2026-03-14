@@ -29,6 +29,26 @@ def context(pos: int, length: int = 5):
         "start": start
     }
 
+@app.get("/digit")
+def digit(position: int):
+
+    if position < 0 or position >= len(PI):
+        return {"error": "범위 초과"}
+
+    digit = PI[position]
+
+    start = max(position - CONTEXT, 0)
+    end = position + CONTEXT + 1
+
+    context = PI[start:end]
+
+    return {
+        "position": position,
+        "digit": digit,
+        "context": context,
+        "start": start
+    }
+
 @app.get("/search")
 def search(q: str):
 
