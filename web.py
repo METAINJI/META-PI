@@ -11,28 +11,54 @@ app = FastAPI()
 
 templates = Jinja2Templates(directory="templates")
 
-
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+@app.get("/context")
+def context(pos: int, length: int = 5):
+
+    start = max(pos - 10, 0)
+    end = pos + length + 10
+
+    ctx = PI[start:end]
+
+    return {
+        "context": ctx,
+        "start": start
+    }
 
 @app.get("/search")
 def search(q: str):
 
-    pos = PI.find(q)
+    positions = []
+    start = 0
 
-    if pos == -1:
-        return {"found": False}
+    while True:
+        pos = PI.find(q, start)
+        if pos == -1:
+            break
 
-    start = max(0, pos - CONTEXT)
-    end = pos + len(q) + CONTEXT
+        positions.append(pos)
+        start = pos + 1
 
-    context = PI[start:end]
+    if not positions:
+        return JSONResponse({
+            "found": False
+        })
 
-    return {
+    pos = positions[0]
+
+    start_ctx = max(pos - 10, 0)
+    end_ctx = pos + len(q) + 10
+
+    context = PI[start_ctx:end_ctx]
+
+    return JSONResponse({
         "found": True,
-        "position": pos,
+        "positions": positions,
+        "count": len(positions),
         "context": context,
-        "start": start
-    }
+        "position": pos,
+        "start": start_ctx
+    })
