@@ -185,6 +185,8 @@ cursor:pointer;
 
 <button onclick="copyResult()">결과 복사</button>
 
+<button onclick="nextResult()">다음 발견</button>
+
 </div>
 
 </div>
@@ -318,6 +320,39 @@ document.getElementById("input")
 .addEventListener("keypress",(e)=>{
 if(e.key==="Enter") run()
 })
+
+let results=[]
+let resultIndex=0
+
+results=data.positions
+resultIndex=0
+
+function nextResult(){
+
+if(resultIndex+1>=results.length){
+alert("마지막 결과입니다")
+return
+}
+
+resultIndex++
+
+showResult()
+
+}
+
+function showResult(){
+
+let pos=results[resultIndex]
+
+fetch("/context?pos="+pos)
+.then(r=>r.json())
+.then(data=>{
+
+document.getElementById("result").innerHTML=data.context
+
+})
+
+}
 
 </script>
 
