@@ -42,13 +42,14 @@ def digit(position: int):
 
     digit = PI[position]
 
-    start = max(0, position - CONTEXT)
-    end = position + CONTEXT + 1
+    start = max(0, pos - CONTEXT)
+end = pos + len(q) + CONTEXT
 
-    context = PI[start:end]
+context = PI[start:end]
 
-    return {
-        "position": position,
-        "digit": digit,
-        "context": context
-    }
+return {
+    "found": True,
+    "position": pos,
+    "context": context,
+    "start": start
+}
