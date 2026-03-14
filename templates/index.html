@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 <meta charset="UTF-8">
 <title>Pi Search</title>
@@ -27,7 +26,7 @@ margin:0;
 font-family:system-ui;
 background:var(--bg);
 color:var(--text);
-transition:background .4s,color .4s;
+transition:background .35s,color .35s;
 }
 
 header{
@@ -44,6 +43,20 @@ font-size:22px;
 font-weight:700;
 }
 
+button{
+background:var(--accent);
+border:none;
+color:white;
+padding:10px 16px;
+border-radius:8px;
+cursor:pointer;
+font-size:14px;
+}
+
+button.secondary{
+background:#777;
+}
+
 .container{
 max-width:700px;
 margin:60px auto;
@@ -56,32 +69,33 @@ padding:30px;
 border-radius:14px;
 box-shadow:0 6px 18px rgba(0,0,0,0.08);
 margin-bottom:20px;
-transition:background .4s;
+transition:background .35s;
+}
+ 
+.input-group{
+display:flex;
+gap:10px;
+margin-top:10px;
 }
 
-input,select{
-width:100%;
+select{
+flex:1;
 padding:12px;
 border-radius:8px;
 border:1px solid var(--border);
-margin-top:10px;
-font-size:16px;
+font-size:15px;
 background:transparent;
 color:var(--text);
 }
 
-button{
-background:var(--accent);
-border:none;
-color:white;
-padding:10px 18px;
+input{
+flex:3;
+padding:12px;
 border-radius:8px;
-cursor:pointer;
-margin-top:12px;
-}
-
-button.secondary{
-background:#777;
+border:1px solid var(--border);
+font-size:15px;
+background:transparent;
+color:var(--text);
 }
 
 .result{
@@ -99,10 +113,11 @@ padding:15px;
 border-radius:10px;
 box-shadow:0 10px 25px rgba(0,0,0,0.2);
 display:none;
+z-index:10;
 }
 
-.fade{
-transition:all .3s ease;
+.settings label{
+cursor:pointer;
 }
 
 </style>
@@ -111,22 +126,26 @@ transition:all .3s ease;
 <body>
 
 <header>
+
 <div class="logo">π Pi Search</div>
 
 <div>
-<a href="YOUR_BOT_INVITE_LINK">
-<button>➕ Invite Bot</button>
+
+<a href="https://discord.com/oauth2/authorize?client_id=1425638868626964540&scope=bot%20applications.commands&permissions=274877975552">
+<button>➕ 봇 추가하기</button>
 </a>
 
 <button onclick="toggleSettings()">⚙</button>
+
 </div>
+
 </header>
 
-<div class="settings fade" id="settings">
+<div class="settings" id="settings">
 
 <label>
-<input type="checkbox" id="darkToggle" onchange="toggleDark()">
- Dark Mode
+<input type="checkbox" id="darkToggle">
+ 다크 모드
 </label>
 
 </div>
@@ -135,29 +154,33 @@ transition:all .3s ease;
 
 <div class="card">
 
-<h2>Search in π</h2>
+<h2>파이 검색</h2>
+
+<div class="input-group">
 
 <select id="mode">
-<option value="search">Number Search</option>
-<option value="digit">Digit Position</option>
+<option value="search">숫자 검색</option>
+<option value="digit">자리 검색</option>
 </select>
 
-<input id="input" placeholder="Enter number or position">
+<input id="input" placeholder="숫자 또는 자리 입력">
 
-<button onclick="run()">Search</button>
-<button class="secondary" onclick="randomPi()">Random</button>
+</div>
+
+<button onclick="run()">검색</button>
+<button class="secondary" onclick="randomPi()">랜덤</button>
 
 </div>
 
 <div class="card">
 
-<h3>Result</h3>
+<h3>검색 결과</h3>
 
 <div id="time"></div>
 
 <div id="result" class="result"></div>
 
-<button onclick="copyResult()">Copy Result</button>
+<button onclick="copyResult()">결과 복사</button>
 
 </div>
 
@@ -165,25 +188,34 @@ transition:all .3s ease;
 
 <script>
 
-let settingsOpen=false
-
 function toggleSettings(){
-settingsOpen=!settingsOpen
-document.getElementById("settings").style.display=settingsOpen?"block":"none"
+
+const panel=document.getElementById("settings")
+
+if(panel.style.display==="block"){
+panel.style.display="none"
+}else{
+panel.style.display="block"
 }
 
-function toggleDark(){
+}
+
+const darkToggle=document.getElementById("darkToggle")
+
+darkToggle.addEventListener("change",()=>{
 
 document.body.classList.toggle("dark")
 
-localStorage.setItem("dark",
-document.body.classList.contains("dark"))
+localStorage.setItem(
+"dark",
+document.body.classList.contains("dark")
+)
 
-}
+})
 
 if(localStorage.getItem("dark")==="true"){
 document.body.classList.add("dark")
-document.getElementById("darkToggle").checked=true
+darkToggle.checked=true
 }
 
 async function run(){
@@ -205,7 +237,7 @@ let output=""
 if(mode==="search"){
 
 if(!data.found){
-output="Not found"
+output="검색 결과가 없습니다"
 }else{
 
 let ctx=data.context
@@ -214,20 +246,17 @@ let i=ctx.indexOf(value)
 let highlight=
 ctx.slice(0,i)+"["+value+"]"+ctx.slice(i+value.length)
 
-let arrow=" ".repeat(i)+"^"
+let prefix=data.start===0?"":"..."
+let suffix="..."
 
-output="Position: "+data.position+"\n\n"+
-  
-let prefix = data.start === 0 ? "" : "..."
-let suffix = "..."
-
-if(data.start === 0){
-ctx = "3." + ctx.slice(1)
+if(data.start===0){
+ctx="3."+ctx.slice(1)
+highlight="3."+highlight.slice(1)
 }
 
-output =
-"Position: "+data.position+"\n\n"+
-prefix + highlight + suffix
+output=
+"위치: "+data.position+"\n\n"+
+prefix+highlight+suffix
 
 }
 
@@ -240,25 +269,24 @@ let i=ctx.indexOf(digit)
 let highlight=
 ctx.slice(0,i)+"["+digit+"]"+ctx.slice(i+1)
 
-output="Digit: "+data.position+"\n\n"+
+let prefix=data.start===0?"":"..."
+let suffix="..."
 
-let prefix = data.start === 0 ? "" : "..."
-let suffix = "..."
-
-if(data.start === 0){
-ctx = "3." + ctx.slice(1)
+if(data.start===0){
+ctx="3."+ctx.slice(1)
+highlight="3."+highlight.slice(1)
 }
 
-output =
-"Digit: "+data.position+"\n\n"+
-prefix + highlight + suffix
+output=
+"자리: "+data.position+"\n\n"+
+prefix+highlight+suffix
 
 }
 
 let end=performance.now()
 
 document.getElementById("time").innerText=
-"Search time: "+((end-start)/1000).toFixed(3)+"s"
+"검색 시간: "+((end-start)/1000).toFixed(3)+"초"
 
 document.getElementById("result").innerText=output
 
