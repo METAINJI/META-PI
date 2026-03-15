@@ -49,21 +49,31 @@ def digit(position: int):
         "start": start
     }
 
+MAX_RESULTS = 1000
+
 @app.get("/search")
 def search(q: str):
 
     positions = []
     start = 0
+    count = 0
 
     while True:
         pos = PI.find(q, start)
         if pos == -1:
             break
 
-        positions.append(pos)
+        count += 1
+
+        if len(positions) < MAX_RESULTS:
+            positions.append(pos)
+
+        if count > MAX_RESULTS:
+            break
+
         start = pos + 1
 
-    if not positions:
+    if count == 0:
         return JSONResponse({
             "found": False
         })
@@ -78,7 +88,7 @@ def search(q: str):
     return JSONResponse({
         "found": True,
         "positions": positions,
-        "count": len(positions),
+        "count": "1000+" if count > MAX_RESULTS else count,
         "context": context,
         "position": pos,
         "start": start_ctx
