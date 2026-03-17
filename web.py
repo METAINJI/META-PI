@@ -49,7 +49,7 @@ def digit(position: int):
         "start": start
     }
 
-MAX_RESULTS = 1000
+MAX_RESULTS = 10000
 
 @app.get("/search")
 def search(q: str):
@@ -88,7 +88,7 @@ def search(q: str):
     return JSONResponse({
         "found": True,
         "positions": positions,
-        "count": "1000+" if count > MAX_RESULTS else count,
+        "count": "10000+" if count > MAX_RESULTS else count,
         "context": context,
         "position": pos,
         "start": start_ctx
