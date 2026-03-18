@@ -199,10 +199,20 @@ async def 핑(
     await interaction.response.send_message(embed=embed)
 
 
+import time
+import nextcord
+from nextcord.ui import View, button
+from nextcord import Interaction
+
 MAX_RESULTS = 10000
 CONTEXT = 10
 
+# PI 문자열은 미리 로드되어 있다고 가정
+# PI = "3.1415926535..."
+
 def search_pi(q: str):
+    start_time = time.perf_counter()  # 시작 시간
+
     positions = []
     start = 0
     count = 0
@@ -220,20 +230,23 @@ def search_pi(q: str):
         if count >= MAX_RESULTS:
             break
 
-        start = pos + len(q) 
+        start = pos + len(q)
 
-    return positions, count
+    elapsed = time.perf_counter() - start_time  # 걸린 시간
+
+    return positions, count, elapsed
 
 
 class PiSearchView(View):
-    def __init__(self, positions, number, user_id, total_count):
+    def __init__(self, positions, number, user_id, total_count, elapsed):
         super().__init__(timeout=120)
         self.positions = positions
         self.number = number
         self.user_id = user_id
         self.index = 0
         self.total_count = total_count
-        self.message = None 
+        self.elapsed = elapsed
+        self.message = None
 
     def get_message(self):
         pos = self.positions[self.index]
@@ -242,7 +255,6 @@ class PiSearchView(View):
         end = pos + len(self.number) + CONTEXT
 
         ctx = PI[start:end]
-    
         i = ctx.find(self.number)
 
         if i != -1:
@@ -262,10 +274,12 @@ class PiSearchView(View):
             highlight = "3." + highlight[1:]
 
         total_text = (
-            f"{self.total_count:,}" 
-            if self.total_count < MAX_RESULTS 
+            f"{self.total_count:,}"
+            if self.total_count < MAX_RESULTS
             else f"{MAX_RESULTS:,}+"
         )
+
+        time_text = f"{self.elapsed:.4f}s"
 
         return f"""🔎 검색 결과
 
@@ -273,13 +287,13 @@ class PiSearchView(View):
 ({self.index+1} / {len(self.positions)})
 
 총 개수: {total_text}
+검색 시간: {time_text}
 
 {prefix}{highlight}{suffix}
 """
 
     @button(label="⬅ 이전", style=nextcord.ButtonStyle.secondary)
     async def prev_btn(self, button, interaction: Interaction):
-
         if interaction.user.id != self.user_id:
             await interaction.response.send_message("❌ 본인만 사용 가능", ephemeral=True)
             return
@@ -294,7 +308,6 @@ class PiSearchView(View):
 
     @button(label="➡ 다음", style=nextcord.ButtonStyle.primary)
     async def next_btn(self, button, interaction: Interaction):
-
         if interaction.user.id != self.user_id:
             await interaction.response.send_message("❌ 본인만 사용 가능", ephemeral=True)
             return
@@ -306,25 +319,31 @@ class PiSearchView(View):
             content=self.get_message(),
             view=self
         )
- 
+
     async def on_timeout(self):
         for child in self.children:
             child.disabled = True
 
         if self.message:
-            await self.message.edit(view=self) 
+            await self.message.edit(view=self)
 
 
 @bot.slash_command(description="파이에서 숫자 검색")
 async def 파이검색(interaction: Interaction, number: str = SlashOption()):
 
-    positions, count = search_pi(number)
+    positions, count, elapsed = search_pi(q)
 
     if not positions:
         await interaction.followup.send("❌ 찾지 못했습니다")
         return
-    
-    view = PiSearchView(positions, number, interaction.user.id, count)
+
+    view = PiSearchView(
+        positions,
+        q,
+        interaction.user.id,
+        count,
+        elapsed
+    )
 
     msg = await interaction.followup.send(
         content=view.get_message(),
