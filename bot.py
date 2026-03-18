@@ -198,29 +198,6 @@ async def 핑(
 
     await interaction.response.send_message(embed=embed)
 
-MAX_RESULTS = 10000
-
-def search_pi(q: str):
-    positions = []
-    start = 0
-    count = 0
-
-    while True:
-        pos = PI.find(q, start)
-        if pos == -1:
-            break
-
-        count += 1
-
-        if len(positions) < MAX_RESULTS:
-            positions.append(pos)
-
-        if count > MAX_RESULTS:
-            break
-
-        start = pos + 1
-
-    return positions, count
 
 MAX_RESULTS = 10000
 CONTEXT = 10
@@ -240,7 +217,7 @@ def search_pi(q: str):
         if len(positions) < MAX_RESULTS:
             positions.append(pos)
 
-        if count > MAX_RESULTS:
+        if count >= MAX_RESULTS:
             break
 
         start = pos + 1
@@ -254,6 +231,7 @@ class PiSearchView(View):
         self.number = number
         self.user_id = user_id
         self.index = 0
+        self.total_count = total_count
 
 def get_message(self):
     pos = self.positions[self.index]
@@ -281,10 +259,18 @@ def get_message(self):
         ctx = "3." + ctx[1:]
         highlight = "3." + highlight[1:]
 
+    total_text = (
+        f"{self.total_count:,}" 
+        if self.total_count < MAX_RESULTS 
+        else f"{MAX_RESULTS:,}+"
+    )
+
     return f"""🔎 검색 결과
 
 위치: {pos:,}
 ({self.index+1} / {len(self.positions)})
+
+총 개수: {total_text}
 
 {prefix}{highlight}{suffix}
 """
@@ -333,8 +319,8 @@ async def 파이검색(interaction: Interaction, number: str = SlashOption()):
     if not positions:
         await interaction.followup.send("❌ 찾지 못했습니다")
         return
-
-    view = PiSearchView(positions, number, interaction.user.id)
+    
+    view = PiSearchView(positions, number, interaction.user.id, count)
 
     await interaction.followup.send(
         content=view.get_message(),
