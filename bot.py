@@ -343,8 +343,6 @@ async def 파이검색(
         )
         return
 
-    await interaction.response.defer(thinking=True)
-
     loop = asyncio.get_running_loop()
     positions, count = await loop.run_in_executor(
         None, search_pi, number, mode
