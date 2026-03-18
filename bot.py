@@ -304,8 +304,8 @@ def get_message(self):
             view=self
         )
 
-        @button(label="➡ 다음", style=nextcord.ButtonStyle.primary)
-        async def next_btn(self, button, interaction: Interaction):
+    @button(label="➡ 다음", style=nextcord.ButtonStyle.primary)
+    async def next_btn(self, button, interaction: Interaction):
 
         if interaction.user.id != self.user_id:
             await interaction.response.send_message("❌ 본인만 사용 가능", ephemeral=True)
