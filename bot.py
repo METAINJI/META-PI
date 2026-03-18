@@ -255,21 +255,38 @@ class PiSearchView(View):
         self.user_id = user_id
         self.index = 0
 
-    def get_message(self):
-        pos = self.positions[self.index]
+def get_message(self):
+    pos = self.positions[self.index]
 
-        start = max(0, pos - CONTEXT)
-        end = pos + len(self.number) + CONTEXT
+    start = max(0, pos - CONTEXT)
+    end = pos + len(self.number) + CONTEXT
 
-        context = PI[start:end]
-        highlighted = context.replace(self.number, f"**{self.number}**")
+    ctx = PI[start:end]
+    
+    i = ctx.find(self.number)
 
-        return f"""🔎 검색 결과
+    if i != -1:
+        highlight = (
+            ctx[:i] +
+            f"**{self.number}**" +
+            ctx[i + len(self.number):]
+        )
+    else:
+        highlight = ctx
+
+    prefix = "" if start == 0 else "..."
+    suffix = "..."
+
+    if start == 0:
+        ctx = "3." + ctx[1:]
+        highlight = "3." + highlight[1:]
+
+    return f"""🔎 검색 결과
 
 위치: {pos:,}
 ({self.index+1} / {len(self.positions)})
 
-...{highlighted}...
+{prefix}{highlight}{suffix}
 """
 
     @button(label="⬅ 이전", style=nextcord.ButtonStyle.secondary)
