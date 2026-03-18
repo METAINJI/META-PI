@@ -198,20 +198,11 @@ async def 핑(
 
     await interaction.response.send_message(embed=embed)
 
-
-import time
-import nextcord
-from nextcord.ui import View, button
-from nextcord import Interaction
-
 MAX_RESULTS = 10000
 CONTEXT = 10
 
-# PI 문자열은 미리 로드되어 있다고 가정
-# PI = "3.1415926535..."
-
 def search_pi(q: str):
-    start_time = time.perf_counter()  # 시작 시간
+    start_time = time.perf_counter() 
 
     positions = []
     start = 0
@@ -232,7 +223,7 @@ def search_pi(q: str):
 
         start = pos + len(q)
 
-    elapsed = time.perf_counter() - start_time  # 걸린 시간
+    elapsed = time.perf_counter() - start_time
 
     return positions, count, elapsed
 
@@ -331,7 +322,7 @@ class PiSearchView(View):
 @bot.slash_command(description="파이에서 숫자 검색")
 async def 파이검색(interaction: Interaction, number: str = SlashOption()):
 
-    positions, count, elapsed = search_pi(q)
+    positions, count, elapsed = search_pi(number)
 
     if not positions:
         await interaction.followup.send("❌ 찾지 못했습니다")
