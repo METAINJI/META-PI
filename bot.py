@@ -225,7 +225,6 @@ def search_pi(q: str):
 MAX_RESULTS = 10000
 CONTEXT = 10
 
-# 🔍 검색 함수 (웹과 공용)
 def search_pi(q: str):
     positions = []
     start = 0
@@ -248,8 +247,6 @@ def search_pi(q: str):
 
     return positions, count
 
-
-# 🎛️ 버튼 UI
 class PiSearchView(View):
     def __init__(self, positions, number, user_id):
         super().__init__(timeout=120)
@@ -274,21 +271,6 @@ class PiSearchView(View):
 
 ...{highlighted}...
 """
-        
-    @button(label="➡ 다음", style=nextcord.ButtonStyle.primary)
-    async def next_btn(self, button, interaction: Interaction):
-
-        if interaction.user.id != self.user_id:
-            await interaction.response.send_message("❌ 본인만 사용 가능", ephemeral=True)
-            return
-
-        if self.index < len(self.positions) - 1:
-            self.index += 1
-
-        await interaction.response.edit_message(
-            content=self.get_message(),
-            view=self
-        )
 
     @button(label="⬅ 이전", style=nextcord.ButtonStyle.secondary)
     async def prev_btn(self, button, interaction: Interaction):
@@ -305,33 +287,20 @@ class PiSearchView(View):
             view=self
         )
 
-    @button(label="🎲 랜덤", style=nextcord.ButtonStyle.success)
-    async def random_btn(self, button, interaction: Interaction):
+        @button(label="➡ 다음", style=nextcord.ButtonStyle.primary)
+    async def next_btn(self, button, interaction: Interaction):
 
         if interaction.user.id != self.user_id:
             await interaction.response.send_message("❌ 본인만 사용 가능", ephemeral=True)
             return
 
-        pos = random.randint(0, len(PI)-1)
-
-        start = max(0, pos - CONTEXT)
-        end = pos + CONTEXT + 1
-
-        context = PI[start:end]
-        highlighted = context[:CONTEXT] + f"**{context[CONTEXT]}**" + context[CONTEXT+1:]
-
-        msg = f"""🎲 랜덤 위치
-
-위치: {pos:,}
-
-...{highlighted}...
-"""
+        if self.index < len(self.positions) - 1:
+            self.index += 1
 
         await interaction.response.edit_message(
-            content=msg,
+            content=self.get_message(),
             view=self
         )
-
  
     async def on_timeout(self):
         for child in self.children:
