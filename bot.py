@@ -1,5 +1,6 @@
 import os
 import nextcord
+import random
 from nextcord.ext import commands
 from nextcord.ui import View, button
 from nextcord import Interaction, SlashOption
@@ -221,33 +222,138 @@ def search_pi(q: str):
 
     return positions, count
 
+MAX_RESULTS = 10000
+CONTEXT = 10
+
+# 🔍 검색 함수 (웹과 공용)
+def search_pi(q: str):
+    positions = []
+    start = 0
+    count = 0
+
+    while True:
+        pos = PI.find(q, start)
+        if pos == -1:
+            break
+
+        count += 1
+
+        if len(positions) < MAX_RESULTS:
+            positions.append(pos)
+
+        if count > MAX_RESULTS:
+            break
+
+        start = pos + 1
+
+    return positions, count
+
+
+# 🎛️ 버튼 UI
+class PiSearchView(View):
+    def __init__(self, positions, number, user_id):
+        super().__init__(timeout=120)
+        self.positions = positions
+        self.number = number
+        self.user_id = user_id
+        self.index = 0
+
+    def get_message(self):
+        pos = self.positions[self.index]
+
+        start = max(0, pos - CONTEXT)
+        end = pos + len(self.number) + CONTEXT
+
+        context = PI[start:end]
+        highlighted = context.replace(self.number, f"**{self.number}**")
+
+        return f"""🔎 검색 결과
+
+위치: {pos:,}
+({self.index+1} / {len(self.positions)})
+
+...{highlighted}...
+"""
+        
+    @button(label="➡ 다음", style=nextcord.ButtonStyle.primary)
+    async def next_btn(self, button, interaction: Interaction):
+
+        if interaction.user.id != self.user_id:
+            await interaction.response.send_message("❌ 본인만 사용 가능", ephemeral=True)
+            return
+
+        if self.index < len(self.positions) - 1:
+            self.index += 1
+
+        await interaction.response.edit_message(
+            content=self.get_message(),
+            view=self
+        )
+
+    @button(label="⬅ 이전", style=nextcord.ButtonStyle.secondary)
+    async def prev_btn(self, button, interaction: Interaction):
+
+        if interaction.user.id != self.user_id:
+            await interaction.response.send_message("❌ 본인만 사용 가능", ephemeral=True)
+            return
+
+        if self.index > 0:
+            self.index -= 1
+
+        await interaction.response.edit_message(
+            content=self.get_message(),
+            view=self
+        )
+
+    @button(label="🎲 랜덤", style=nextcord.ButtonStyle.success)
+    async def random_btn(self, button, interaction: Interaction):
+
+        if interaction.user.id != self.user_id:
+            await interaction.response.send_message("❌ 본인만 사용 가능", ephemeral=True)
+            return
+
+        pos = random.randint(0, len(PI)-1)
+
+        start = max(0, pos - CONTEXT)
+        end = pos + CONTEXT + 1
+
+        context = PI[start:end]
+        highlighted = context[:CONTEXT] + f"**{context[CONTEXT]}**" + context[CONTEXT+1:]
+
+        msg = f"""🎲 랜덤 위치
+
+위치: {pos:,}
+
+...{highlighted}...
+"""
+
+        await interaction.response.edit_message(
+            content=msg,
+            view=self
+        )
+
+ 
+    async def on_timeout(self):
+        for child in self.children:
+            child.disabled = True
+
 @bot.slash_command(description="파이에서 숫자 검색")
 async def 파이검색(interaction: Interaction, number: str = SlashOption()):
+
+    await interaction.response.defer()
 
     positions, count = search_pi(number)
 
     if not positions:
-        await interaction.response.send_message("❌ 찾지 못했습니다")
+        await interaction.followup.send("❌ 찾지 못했습니다")
         return
 
-    pos = positions[0]
+    view = PiSearchView(positions, number, interaction.user.id)
 
-    start = max(0, pos - CONTEXT)
-    end = pos + len(number) + CONTEXT
-
-    context = PI[start:end]
-    highlighted = context.replace(number, f"**{number}**")
-
-    count_text = f"{count}" if count <= MAX_RESULTS else "10000+"
-
-    msg = f"""🔎 검색 결과
-
-위치: {pos:,}
-총 발견: {count_text}회
-
-...{highlighted}..."""
-
-    await interaction.response.send_message(msg)
+    await interaction.followup.send(
+        content=view.get_message(),
+        view=view
+    )
 
 @bot.slash_command(description="파이 특정 자리 확인")
 async def 파이자리(interaction: Interaction, position: int = SlashOption()):
