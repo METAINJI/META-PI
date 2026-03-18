@@ -220,9 +220,10 @@ def search_pi(q: str):
         if count >= MAX_RESULTS:
             break
 
-        start = pos + 1
+        start = pos + len(q) 
 
     return positions, count
+
 
 class PiSearchView(View):
     def __init__(self, positions, number, user_id, total_count):
@@ -232,6 +233,7 @@ class PiSearchView(View):
         self.user_id = user_id
         self.index = 0
         self.total_count = total_count
+        self.message = None 
 
     def get_message(self):
         pos = self.positions[self.index]
@@ -244,11 +246,11 @@ class PiSearchView(View):
         i = ctx.find(self.number)
 
         if i != -1:
-        highlight = (
-            ctx[:i] +
-            f"**{self.number}**" +
-            ctx[i + len(self.number):]
-        )
+            highlight = (
+                ctx[:i] +
+                f"**{self.number}**" +
+                ctx[i + len(self.number):]
+            )
         else:
             highlight = ctx
 
@@ -273,7 +275,7 @@ class PiSearchView(View):
 총 개수: {total_text}
 
 {prefix}{highlight}{suffix}
-    """
+"""
 
     @button(label="⬅ 이전", style=nextcord.ButtonStyle.secondary)
     async def prev_btn(self, button, interaction: Interaction):
@@ -309,10 +311,14 @@ class PiSearchView(View):
         for child in self.children:
             child.disabled = True
 
+        if self.message:
+            await self.message.edit(view=self) 
+
+
 @bot.slash_command(description="파이에서 숫자 검색")
 async def 파이검색(interaction: Interaction, number: str = SlashOption()):
 
-    await interaction.response.defer()
+    await interaction.response.defer(thinking=True)
 
     positions, count = search_pi(number)
 
@@ -322,10 +328,12 @@ async def 파이검색(interaction: Interaction, number: str = SlashOption()):
     
     view = PiSearchView(positions, number, interaction.user.id, count)
 
-    await interaction.followup.send(
+    msg = await interaction.followup.send(
         content=view.get_message(),
         view=view
     )
+
+    view.message = msg
 
 @bot.slash_command(description="파이 특정 자리 확인")
 async def 파이자리(interaction: Interaction, position: int = SlashOption()):
