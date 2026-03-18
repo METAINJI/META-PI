@@ -198,7 +198,7 @@ async def 핑(
 
     await interaction.response.send_message(embed=embed)
 
-MAX_RESULTS = 1000
+MAX_RESULTS = 10000
 CONTEXT = 10
 
 
