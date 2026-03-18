@@ -233,39 +233,39 @@ class PiSearchView(View):
         self.index = 0
         self.total_count = total_count
 
-def get_message(self):
-    pos = self.positions[self.index]
+    def get_message(self):
+        pos = self.positions[self.index]
 
-    start = max(0, pos - CONTEXT)
-    end = pos + len(self.number) + CONTEXT
+        start = max(0, pos - CONTEXT)
+        end = pos + len(self.number) + CONTEXT
 
-    ctx = PI[start:end]
+        ctx = PI[start:end]
     
-    i = ctx.find(self.number)
+        i = ctx.find(self.number)
 
-    if i != -1:
+        if i != -1:
         highlight = (
             ctx[:i] +
             f"**{self.number}**" +
             ctx[i + len(self.number):]
         )
-    else:
-        highlight = ctx
+        else:
+            highlight = ctx
 
-    prefix = "" if start == 0 else "..."
-    suffix = "..."
+        prefix = "" if start == 0 else "..."
+        suffix = "..."
 
-    if start == 0:
-        ctx = "3." + ctx[1:]
-        highlight = "3." + highlight[1:]
+        if start == 0:
+            ctx = "3." + ctx[1:]
+            highlight = "3." + highlight[1:]
 
-    total_text = (
-        f"{self.total_count:,}" 
-        if self.total_count < MAX_RESULTS 
-        else f"{MAX_RESULTS:,}+"
-    )
+        total_text = (
+            f"{self.total_count:,}" 
+            if self.total_count < MAX_RESULTS 
+            else f"{MAX_RESULTS:,}+"
+        )
 
-    return f"""🔎 검색 결과
+        return f"""🔎 검색 결과
 
 위치: {pos:,}
 ({self.index+1} / {len(self.positions)})
@@ -273,7 +273,7 @@ def get_message(self):
 총 개수: {total_text}
 
 {prefix}{highlight}{suffix}
-"""
+    """
 
     @button(label="⬅ 이전", style=nextcord.ButtonStyle.secondary)
     async def prev_btn(self, button, interaction: Interaction):
