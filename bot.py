@@ -225,7 +225,7 @@ def search_pi(q: str):
     return positions, count
 
 class PiSearchView(View):
-    def __init__(self, positions, number, user_id):
+    def __init__(self, positions, number, user_id, total_count):
         super().__init__(timeout=120)
         self.positions = positions
         self.number = number
