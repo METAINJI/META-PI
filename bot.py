@@ -318,8 +318,6 @@ class PiSearchView(View):
 @bot.slash_command(description="파이에서 숫자 검색")
 async def 파이검색(interaction: Interaction, number: str = SlashOption()):
 
-    await interaction.response.defer(thinking=True)
-
     positions, count = search_pi(number)
 
     if not positions:
