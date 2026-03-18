@@ -197,13 +197,40 @@ async def 핑(
 
     await interaction.response.send_message(embed=embed)
 
+MAX_RESULTS = 10000
+
+def search_pi(q: str):
+    positions = []
+    start = 0
+    count = 0
+
+    while True:
+        pos = PI.find(q, start)
+        if pos == -1:
+            break
+
+        count += 1
+
+        if len(positions) < MAX_RESULTS:
+            positions.append(pos)
+
+        if count > MAX_RESULTS:
+            break
+
+        start = pos + 1
+
+    return positions, count
+
 @bot.slash_command(description="파이에서 숫자 검색")
 async def 파이검색(interaction: Interaction, number: str = SlashOption()):
-    pos = PI.find(number)
 
-    if pos == -1:
+    positions, count = search_pi(number)
+
+    if not positions:
         await interaction.response.send_message("❌ 찾지 못했습니다")
         return
+
+    pos = positions[0]
 
     start = max(0, pos - CONTEXT)
     end = pos + len(number) + CONTEXT
@@ -211,14 +238,16 @@ async def 파이검색(interaction: Interaction, number: str = SlashOption()):
     context = PI[start:end]
     highlighted = context.replace(number, f"**{number}**")
 
+    count_text = f"{count}" if count <= MAX_RESULTS else "10000+"
+
     msg = f"""🔎 검색 결과
 
-    위치: {pos}
+위치: {pos:,}
+총 발견: {count_text}회
 
-    ...{highlighted}..."""
+...{highlighted}..."""
 
     await interaction.response.send_message(msg)
-
 
 @bot.slash_command(description="파이 특정 자리 확인")
 async def 파이자리(interaction: Interaction, position: int = SlashOption()):
