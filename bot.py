@@ -198,15 +198,28 @@ async def 핑(
 
     await interaction.response.send_message(embed=embed)
 
-MAX_RESULTS = 10000
+MAX_RESULTS = 1000
 CONTEXT = 10
 
-def search_pi(q: str):
+
+def search_pi(q: str, mode: str):
+
+    if mode == "first":
+        pos = PI.find(q)
+        if pos == -1:
+            return None, 0
+        return [pos], 1
+
     positions = []
     start = 0
     count = 0
+    start_time = time.time()
 
     while True:
+    
+        if time.time() - start_time > 2:
+            break
+
         pos = PI.find(q, start)
         if pos == -1:
             break
@@ -219,7 +232,7 @@ def search_pi(q: str):
         if count >= MAX_RESULTS:
             break
 
-        start = pos + len(q) 
+        start = pos + len(q)
 
     return positions, count
 
@@ -232,7 +245,7 @@ class PiSearchView(View):
         self.user_id = user_id
         self.index = 0
         self.total_count = total_count
-        self.message = None 
+        self.message = None
 
     def get_message(self):
         pos = self.positions[self.index]
@@ -241,15 +254,10 @@ class PiSearchView(View):
         end = pos + len(self.number) + CONTEXT
 
         ctx = PI[start:end]
-    
         i = ctx.find(self.number)
 
         if i != -1:
-            highlight = (
-                ctx[:i] +
-                f"**{self.number}**" +
-                ctx[i + len(self.number):]
-            )
+            highlight = ctx[:i] + f"**{self.number}**" + ctx[i+len(self.number):]
         else:
             highlight = ctx
 
@@ -257,12 +265,11 @@ class PiSearchView(View):
         suffix = "..."
 
         if start == 0:
-            ctx = "3." + ctx[1:]
             highlight = "3." + highlight[1:]
 
         total_text = (
-            f"{self.total_count:,}" 
-            if self.total_count < MAX_RESULTS 
+            f"{self.total_count:,}"
+            if self.total_count < MAX_RESULTS
             else f"{MAX_RESULTS:,}+"
         )
 
@@ -278,7 +285,6 @@ class PiSearchView(View):
 
     @button(label="⬅ 이전", style=nextcord.ButtonStyle.secondary)
     async def prev_btn(self, button, interaction: Interaction):
-
         if interaction.user.id != self.user_id:
             await interaction.response.send_message("❌ 본인만 사용 가능", ephemeral=True)
             return
@@ -293,7 +299,6 @@ class PiSearchView(View):
 
     @button(label="➡ 다음", style=nextcord.ButtonStyle.primary)
     async def next_btn(self, button, interaction: Interaction):
-
         if interaction.user.id != self.user_id:
             await interaction.response.send_message("❌ 본인만 사용 가능", ephemeral=True)
             return
@@ -305,24 +310,69 @@ class PiSearchView(View):
             content=self.get_message(),
             view=self
         )
- 
+
     async def on_timeout(self):
         for child in self.children:
             child.disabled = True
 
         if self.message:
-            await self.message.edit(view=self) 
+            await self.message.edit(view=self)
 
 
 @bot.slash_command(description="파이에서 숫자 검색")
-async def 파이검색(interaction: Interaction, number: str = SlashOption()):
+async def 파이검색(
+    interaction: Interaction,
+    number: str = SlashOption(),
+    mode: str = SlashOption(
+        name="검색범위",
+        description="검색 방식 선택",
+        required=False,
+        choices={
+            "처음 발견": "first",
+            "전체 검색": "all"
+        }
+    )
+):
+    if mode is None:
+        mode = "first"
 
-    positions, count = search_pi(number)
+    if mode == "all" and len(number) <= 2:
+        await interaction.response.send_message(
+            "❌ 전체 검색을 하려면 최소 2자리 이상의 숫자를 입력해주세요.",
+            ephemeral=True
+        )
+        return
+
+    await interaction.response.defer(thinking=True)
+
+    loop = asyncio.get_running_loop()
+    positions, count = await loop.run_in_executor(
+        None, search_pi, number, mode
+    )
 
     if not positions:
         await interaction.followup.send("❌ 찾지 못했습니다")
         return
-    
+
+    if mode == "first":
+        pos = positions[0]
+
+        start = max(0, pos - CONTEXT)
+        end = pos + len(number) + CONTEXT
+
+        ctx = PI[start:end]
+        i = ctx.find(number)
+        highlight = ctx[:i] + f"**{number}**" + ctx[i+len(number):]
+
+        await interaction.followup.send(
+            f"""🔎 검색 결과
+
+위치: {pos:,}
+
+...{highlight}..."""
+        )
+        return
+
     view = PiSearchView(positions, number, interaction.user.id, count)
 
     msg = await interaction.followup.send(
