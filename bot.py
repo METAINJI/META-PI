@@ -2,7 +2,7 @@ import os
 import nextcord
 import random
 from nextcord.ext import commands
-from nextcord.ui import View, button
+from nextcord.ui import View, button, Modal, TextInput
 from nextcord import Interaction, SlashOption
 import functools
 import traceback
@@ -199,6 +199,40 @@ async def 핑(
     await interaction.response.send_message(embed=embed)
 
 
+class JumpModal(Modal):
+    def __init__(self, view: "PiSearchView"):
+        super().__init__(title="번호로 이동")
+        self.view = view
+
+        self.input = TextInput(
+            label="이동할 번호 (1 ~ {})".format(len(view.positions)),
+            placeholder="예: 314",
+            required=True
+        )
+        self.add_item(self.input)
+
+    async def callback(self, interaction: Interaction):
+        if interaction.user.id != self.view.user_id:
+            await interaction.response.send_message("❌ 본인만 사용 가능", ephemeral=True)
+            return
+
+        try:
+            value = int(self.input.value)
+        except:
+            await interaction.response.send_message("❌ 숫자만 입력", ephemeral=True)
+            return
+
+        if not (1 <= value <= len(self.view.positions)):
+            await interaction.response.send_message("❌ 이동 가능 범위 초과", ephemeral=True)
+            return
+
+        self.view.index = value - 1
+
+        await interaction.response.edit_message(
+            content=self.view.get_message(),
+            view=self.view
+        )
+
 MAX_RESULTS = 10000
 CONTEXT = 10
 
@@ -236,38 +270,37 @@ class PiSearchView(View):
         self.message = None 
 
     def get_message(self):
-        pos = self.positions[self.index]
+    pos = self.positions[self.index]
 
-        start = max(0, pos - CONTEXT)
-        end = pos + len(self.number) + CONTEXT
+    start = max(0, pos - CONTEXT)
+    end = pos + len(self.number) + CONTEXT
 
-        ctx = PI[start:end]
-    
-        i = ctx.find(self.number)
+    ctx = PI[start:end]
 
-        if i != -1:
-            highlight = (
-                ctx[:i] +
-                f"**{self.number}**" +
-                ctx[i + len(self.number):]
-            )
-        else:
-            highlight = ctx
+    if start == 0:
+        ctx = "3." + ctx[1:]
 
-        prefix = "" if start == 0 else "..."
-        suffix = "..."
+    i = ctx.find(self.number)
 
-        if start == 0:
-            ctx = "3." + ctx[1:]
-            highlight = "3." + highlight[1:]
-
-        total_text = (
-            f"{self.total_count:,}" 
-            if self.total_count < MAX_RESULTS 
-            else f"{MAX_RESULTS:,}+"
+    if i != -1:
+        highlight = (
+            ctx[:i] +
+            f"**{self.number}**" +
+            ctx[i + len(self.number):]
         )
+    else:
+        highlight = ctx
 
-        return f"""🔎 검색 결과
+    prefix = "" if start == 0 else "..."
+    suffix = "..."
+
+    total_text = (
+        f"{self.total_count:,}"
+        if self.total_count < MAX_RESULTS
+        else f"{MAX_RESULTS:,}+"
+    )
+
+    return f"""🔎 검색 결과
 
 위치: {pos:,}
 ({self.index+1} / {len(self.positions)})
@@ -292,7 +325,7 @@ class PiSearchView(View):
             view=self
         )
 
-    @button(label="➡ 다음", style=nextcord.ButtonStyle.primary)
+    @button(label="다음 ➡", style=nextcord.ButtonStyle.primary)
     async def next_btn(self, button, interaction: Interaction):
 
         if interaction.user.id != self.user_id:
@@ -306,6 +339,10 @@ class PiSearchView(View):
             content=self.get_message(),
             view=self
         )
+
+    @button(label="↹ 이동", style=nextcord.ButtonStyle.success)
+async def jump_btn(self, button, interaction: Interaction):
+    await interaction.response.send_modal(JumpModal(self))
  
     async def on_timeout(self):
         for child in self.children:
