@@ -269,38 +269,38 @@ class PiSearchView(View):
         self.total_count = total_count
         self.message = None 
 
-def get_message(self):
-    pos = self.positions[self.index]
+    def get_message(self):
+        pos = self.positions[self.index]
 
-    start = max(0, pos - CONTEXT)
-    end = pos + len(self.number) + CONTEXT
+        start = max(0, pos - CONTEXT)
+        end = pos + len(self.number) + CONTEXT
 
-    ctx = PI[start:end]
+        ctx = PI[start:end]
 
-    if start == 0:
-        ctx = "3." + ctx[1:]
+        if start == 0:
+            ctx = "3." + ctx[1:]
 
-    i = ctx.find(self.number)
+        i = ctx.find(self.number)
 
-    if i != -1:
-        highlight = (
-            ctx[:i] +
-            f"**{self.number}**" +
-            ctx[i + len(self.number):]
+        if i != -1:
+            highlight = (
+                ctx[:i] +
+                f"**{self.number}**" +
+                ctx[i + len(self.number):]
+            )
+        else:
+            highlight = ctx
+    
+        prefix = "" if start == 0 else "..."
+        suffix = "..."
+
+        total_text = (
+            f"{self.total_count:,}"
+            if self.total_count < MAX_RESULTS
+            else f"{MAX_RESULTS:,}+"
         )
-    else:
-        highlight = ctx
 
-    prefix = "" if start == 0 else "..."
-    suffix = "..."
-
-    total_text = (
-        f"{self.total_count:,}"
-        if self.total_count < MAX_RESULTS
-        else f"{MAX_RESULTS:,}+"
-    )
-
-    return f"""🔎 검색 결과
+        return f"""🔎 검색 결과
 
 위치: {pos:,}
 ({self.index+1} / {len(self.positions)})
