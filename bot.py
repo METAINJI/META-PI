@@ -277,7 +277,6 @@ def get_message(self):
 
     ctx = PI[start:end]
 
-    # 🔥 시작이 0이면 먼저 처리
     if start == 0:
         ctx = "3." + ctx[1:]
 
