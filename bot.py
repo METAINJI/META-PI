@@ -269,7 +269,7 @@ class PiSearchView(View):
         self.total_count = total_count
         self.message = None 
 
-    def get_message(self):
+def get_message(self):
     pos = self.positions[self.index]
 
     start = max(0, pos - CONTEXT)
@@ -277,6 +277,7 @@ class PiSearchView(View):
 
     ctx = PI[start:end]
 
+    # 🔥 시작이 0이면 먼저 처리
     if start == 0:
         ctx = "3." + ctx[1:]
 
