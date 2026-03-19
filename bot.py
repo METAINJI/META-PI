@@ -341,7 +341,7 @@ def get_message(self):
         )
 
     @button(label="↹ 이동", style=nextcord.ButtonStyle.success)
-async def jump_btn(self, button, interaction: Interaction):
+    async def jump_btn(self, button, interaction: Interaction):
     await interaction.response.send_modal(JumpModal(self))
  
     async def on_timeout(self):
