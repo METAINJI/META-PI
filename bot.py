@@ -8,6 +8,7 @@ import functools
 import traceback
 import datetime
 import time
+import math
 import asyncio
 import psutil
 
@@ -390,6 +391,30 @@ async def 파이자리(interaction: Interaction, position: int = SlashOption()):
 
     await interaction.response.send_message(msg)
 
+def is_prime(n: int) -> bool:
+    if n <= 1:
+        return False
+    if n == 2:
+        return True
+    if n % 2 == 0:
+        return False
+
+    for i in range(3, int(math.sqrt(n)) + 1, 2):
+        if n % i == 0:
+            return False
+    return True
+
+@bot.slash_command(name="소수판별", description="숫자가 소수인지 판별합니다.")
+async def prime_check(
+    interaction: nextcord.Interaction,
+    number: int = nextcord.SlashOption(description="판별할 숫자 입력")
+):
+    result = is_prime(number)
+
+    if result:
+        await interaction.response.send_message(f"✅ {number}은(는) 소수입니다.")
+    else:
+        await interaction.response.send_message(f"❌ {number}은(는) 소수가 아닙니다.")
 
 async def run_bot():
 
