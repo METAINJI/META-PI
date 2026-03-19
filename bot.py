@@ -342,14 +342,15 @@ def get_message(self):
 
     @button(label="↹ 이동", style=nextcord.ButtonStyle.success)
     async def jump_btn(self, button, interaction: Interaction):
-    await interaction.response.send_modal(JumpModal(self))
+        
+        await interaction.response.send_modal(JumpModal(self))
  
-    async def on_timeout(self):
-        for child in self.children:
-            child.disabled = True
+        async def on_timeout(self):
+            for child in self.children:
+                child.disabled = True
 
-        if self.message:
-            await self.message.edit(view=self) 
+            if self.message:
+                await self.message.edit(view=self) 
 
 
 @bot.slash_command(description="파이에서 숫자 검색")
