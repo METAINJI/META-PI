@@ -1,6 +1,5 @@
 import os
 import nextcord
-import random
 from nextcord.ext import commands
 from nextcord.ui import View, button
 from nextcord import Interaction, SlashOption
@@ -20,23 +19,17 @@ with open("pi.txt") as f:
     PI = f.read().replace("\n", "")
 
 CONTEXT = 10
-
-
-@bot.event
-async def on_ready():
-    print("Bot ready:", bot.user)
-
+bot_start_time = time.time()
 active_commands = {}
 
 def prevent_overlap(func):
-    
     @functools.wraps(func)
     async def wrapper(interaction: nextcord.Interaction, *args, **kwargs):
         user = interaction.user
 
         if active_commands.get(user.id, False):
             await interaction.response.send_message(
-                "<a:Loading:1433393793704398929> 이전 명령어가 아직 처리 중입니다",
+                "⏳ 이전 명령어 처리 중",
                 ephemeral=True
             )
             return
@@ -48,6 +41,10 @@ def prevent_overlap(func):
             active_commands.pop(user.id, None)
 
     return wrapper
+
+@bot.event
+async def on_ready():
+    print("Bot ready:", bot.user)
 
 @bot.event
 async def on_application_command_error(interaction: nextcord.Interaction, error: Exception):
@@ -71,7 +68,6 @@ async def on_application_command_error(interaction: nextcord.Interaction, error:
 
         @button(label="세부사항 보기", style=nextcord.ButtonStyle.danger)
         async def details_button(self, button, i: nextcord.Interaction):
-           
             await i.response.send_message(f"```py\n{full_traceback[:1900]}```", ephemeral=True)
 
     try:
@@ -82,16 +78,18 @@ async def on_application_command_error(interaction: nextcord.Interaction, error:
     except Exception as e:
         print(f"⚠️ 오류 임베드 전송 실패: {e}")
 
+
 bot_start_time = time.time()
 
 def create_bar(value, max_value=100, length=20):
+    """흰색 progress bar 생성"""
     filled_length = int(length * min(value, max_value) / max_value)
     empty_length = length - filled_length
     bar = "█" * filled_length + "░" * empty_length
     return bar
 
 def format_uptime(seconds):
-    days, remainder = divmod(int(seconds), 86400)
+    ays, remainder = divmod(int(seconds), 86400)
     hours, remainder = divmod(remainder, 3600)
     minutes, sec = divmod(remainder, 60)
     parts = []
@@ -103,7 +101,7 @@ def format_uptime(seconds):
         parts.append(f"{minutes}분")
     parts.append(f"{sec}초")
     return " ".join(parts)
-
+ 
 @bot.slash_command(name="핑", description="봇의 상태를 확인합니다.")
 @prevent_overlap
 async def 핑(
@@ -199,31 +197,33 @@ async def 핑(
     await interaction.response.send_message(embed=embed)
 
 
-MAX_RESULTS = 10000
-CONTEXT = 10
+def search_pi_fast(text, pattern):
+    lps = build_lps(pattern)
 
-def search_pi(q: str):
+    i = j = 0
     positions = []
-    start = 0
     count = 0
 
-    while True:
-        pos = PI.find(q, start)
-        if pos == -1:
-            break
+    while i < len(text):
+        if text[i] == pattern[j]:
+            i += 1
+            j += 1
 
-        count += 1
+            if j == len(pattern):
+                pos = i - j
+                count += 1
 
-        if len(positions) < MAX_RESULTS:
-            positions.append(pos)
+                if len(positions) < 1000:
+                    positions.append(pos)
 
-        if count >= MAX_RESULTS:
-            break
-
-        start = pos + len(q) 
+                j = lps[j - 1]
+        else:
+            if j != 0:
+                j = lps[j - 1]
+            else:
+                i += 1
 
     return positions, count
-
 
 class PiSearchView(View):
     def __init__(self, positions, number, user_id, total_count):
@@ -233,7 +233,7 @@ class PiSearchView(View):
         self.user_id = user_id
         self.index = 0
         self.total_count = total_count
-        self.message = None 
+        self.message = None
 
     def get_message(self):
         pos = self.positions[self.index]
@@ -242,7 +242,6 @@ class PiSearchView(View):
         end = pos + len(self.number) + CONTEXT
 
         ctx = PI[start:end]
-    
         i = ctx.find(self.number)
 
         if i != -1:
@@ -261,11 +260,7 @@ class PiSearchView(View):
             ctx = "3." + ctx[1:]
             highlight = "3." + highlight[1:]
 
-        total_text = (
-            f"{self.total_count:,}" 
-            if self.total_count < MAX_RESULTS 
-            else f"{MAX_RESULTS:,}+"
-        )
+        total_text = f"{self.total_count:,}"
 
         return f"""🔎 검색 결과
 
@@ -279,7 +274,6 @@ class PiSearchView(View):
 
     @button(label="⬅ 이전", style=nextcord.ButtonStyle.secondary)
     async def prev_btn(self, button, interaction: Interaction):
-
         if interaction.user.id != self.user_id:
             await interaction.response.send_message("❌ 본인만 사용 가능", ephemeral=True)
             return
@@ -294,7 +288,6 @@ class PiSearchView(View):
 
     @button(label="➡ 다음", style=nextcord.ButtonStyle.primary)
     async def next_btn(self, button, interaction: Interaction):
-
         if interaction.user.id != self.user_id:
             await interaction.response.send_message("❌ 본인만 사용 가능", ephemeral=True)
             return
@@ -306,24 +299,28 @@ class PiSearchView(View):
             content=self.get_message(),
             view=self
         )
- 
+
     async def on_timeout(self):
         for child in self.children:
             child.disabled = True
 
         if self.message:
-            await self.message.edit(view=self) 
-
+            await self.message.edit(view=self)
 
 @bot.slash_command(description="파이에서 숫자 검색")
+@prevent_overlap
 async def 파이검색(interaction: Interaction, number: str = SlashOption()):
 
-    positions, count = search_pi(number)
+    await interaction.response.defer(thinking=True)
+
+    positions, count = await asyncio.to_thread(
+        search_pi_fast, PI, number
+    )
 
     if not positions:
         await interaction.followup.send("❌ 찾지 못했습니다")
         return
-    
+
     view = PiSearchView(positions, number, interaction.user.id, count)
 
     msg = await interaction.followup.send(
@@ -335,22 +332,21 @@ async def 파이검색(interaction: Interaction, number: str = SlashOption()):
 
 @bot.slash_command(description="파이 특정 자리 확인")
 async def 파이자리(interaction: Interaction, position: int = SlashOption()):
+
     digit = PI[position]
 
     start = max(0, position - CONTEXT)
     end = position + CONTEXT + 1
 
     context = PI[start:end]
-
     highlighted = context.replace(digit, f"**{digit}**", 1)
 
     msg = f"""🔢 {position}번째 자리
 
-    ...{highlighted}..."""
+...{highlighted}..."""
 
     await interaction.response.send_message(msg)
 
-
 async def run_bot():
-
+    
     await bot.start(TOKEN)
