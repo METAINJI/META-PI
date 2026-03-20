@@ -2,9 +2,213 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Pi Search</title>
+<title>META Pi</title>
 
 <style>
+
+.hero{
+height:70vh;
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
+position:relative;
+overflow:visible;
+}
+
+.hero-content{
+z-index:2;
+}
+
+.hero h1{
+font-size:56px;
+margin:0;
+font-weight:800;
+}
+
+.hero h2{
+font-size:32px;
+margin:10px 0 20px;
+color:var(--accent);
+}
+
+.hero p{
+font-size:16px;
+opacity:0.8;
+line-height:1.6;
+}
+
+.hero-buttons{
+margin-top:20px;
+display:flex;
+gap:10px;
+justify-content:center;
+}
+
+.hero::before{
+content:"";
+position:absolute;
+width:400px;
+height:400px;
+background:var(--accent);
+opacity:0.15;
+border-radius:50%;
+top:50px;
+right:10%;
+pointer-events:none;
+animation:float1 6s ease-in-out infinite;
+}
+
+.hero::after{
+content:"";
+position:absolute;
+width:600px;
+height:300px;
+background:var(--accent);
+opacity:0.1;
+bottom:-100px;
+left:10%;
+border-radius:50%;
+pointer-events:none;
+animation:float1 6s ease-in-out infinite;
+}
+
+@keyframes float1{
+0%,100%{transform:translateY(0);}
+50%{transform:translateY(-20px);}
+}
+
+@keyframes float2{
+0%,100%{transform:translateY(0);}
+50%{transform:translateY(15px);}
+}
+
+.hero.home::before{
+width:320px;
+height:320px;
+top:30px;
+right:10%;
+background:#8f6fff;
+opacity:0.3;
+border-radius:60% 40% 30% 70% / 60% 30% 70% 40%;
+animation:float1 6s ease-in-out infinite;
+}
+
+.hero.home::after{
+width:450px;
+height:250px;
+bottom:-60px;
+left:10%;
+background:#5865f2;
+opacity:0.2;
+border-radius:40% 60% 70% 30% / 50% 60% 40% 50%;
+animation:float2 7s ease-in-out infinite;
+}
+
+.hero.bot::before{
+width:300px;
+height:300px;
+top:20px;
+right:5%;
+border-radius:30%;
+background:#5865f2;
+opacity:0.25;
+}
+
+.hero.bot::after{
+width:500px;
+height:200px;
+bottom:0;
+left:5%;
+border-radius:20%;
+background:#404eed;
+}
+
+.hero.github::before{
+width:350px;
+height:350px;
+top:30px;
+right:15%;
+border-radius:10%;
+background:#333;
+opacity:0.3;
+}
+
+.hero.github::after{
+width:400px;
+height:200px;
+bottom:20px;
+left:15%;
+border-radius:10%;
+background:#24292e;
+}
+
+.hero-content{
+transition:all 0.4s ease;
+}
+
+.fade-out{
+opacity:0;
+transform:translateY(10px);
+}
+
+.fade-in{
+opacity:1;
+transform:translateY(0);
+}
+
+.nav{
+display:flex;
+align-items:center;
+gap:0;
+}
+
+.nav a{
+text-decoration:none;
+color:var(--text);
+}
+
+.nav button{
+border:none;
+background:none;
+padding:14px 18px;
+font-size:14px;
+cursor:pointer;
+transition:color 0.25s ease;
+border-radius:0; 
+color:var(--text);
+position:relative;
+}
+
+.nav button::after{
+content:"";
+position:absolute;
+left:20%;
+bottom:6px;
+width:60%;
+height:2px;
+background:var(--accent);
+transform:scaleX(0);
+transform-origin:center;
+transition:transform 0.25s ease;
+}
+
+.nav button:hover{
+color:var(--accent);
+}
+
+.nav button:hover::after{
+transform:scaleX(1);
+}
+
+.nav button.active{
+color:var(--accent);
+font-weight:600;
+}
+
+.nav button.active::after{
+transform:scaleX(1);
+}
 
 :root{
 --bg:#f4f6fb;
@@ -87,7 +291,7 @@ border:1px solid var(--border);
 font-size:15px;
 background:transparent;
 color:var(--text);
-}
+} 
 
 input{
 flex:3;
@@ -105,6 +309,39 @@ white-space:pre-wrap;
 margin-top:20px;
 font-size:18px;
 line-height:1.6;
+}
+
+.features{
+padding:80px 20px;
+text-align:center;
+}
+
+.feature-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+max-width:900px;
+margin:40px auto;
+}
+
+.feature-card{
+background:var(--card);
+padding:25px;
+border-radius:20px;
+box-shadow:0 10px 25px rgba(0,0,0,0.1);
+transition:0.3s;
+}
+
+.feature-card:hover{
+transform:translateY(-5px);
+}
+
+.feature-card h3{
+margin-top:0;
+}
+
+.feature-card button{
+margin-top:15px;
 }
 
 .settings{
@@ -130,23 +367,75 @@ cursor:pointer;
 
 <header>
 
-<div class="logo">π Pi Search</div>
+<div class="logo">META Pi</div>
 
-<div>
+<div class="nav">
 
-<a href="https://discord.com/oauth2/authorize?client_id=1482317676427874487&scope=bot%20applications.commands&permissions=274877975552">
-<button>➕ 봇 추가하기</button>
-</a>
+<button class="active" onclick="changeHero('home', this)">홈</button>
 
-<a href="https://github.com/METAINJI/pi-search">
-<button>ℹ️ 오픈 소스</button>
-</a>
- 
-<button onclick="toggleSettings()">⚙️</button>
+<button onclick="changeHero('search', this)">파이 탐색</button>
+
+<button onclick="changeHero('bot', this)">
+봇 추가하기
+</button>
+
+<button onclick="changeHero('github', this)">
+오픈 소스
+</button>
+
+<button onclick="toggleSettings()">설정</button>
 
 </div>
 
 </header>
+
+<section class="hero home">
+
+<section class="features" id="features">
+
+<h2>기능 살펴보기</h2>
+
+<div class="feature-grid">
+
+<div class="feature-card">
+<h3>🔎 파이 탐색</h3>
+<p>π 속에서 원하는 숫자를 찾아보세요.</p>
+<button onclick="changeHero('search', this)">이동</button>
+</div>
+
+<div class="feature-card">
+<h3>🖥️ 디스코드 봇</h3>
+<p>디스코드에서 바로 파이를 검색하세요.</p>
+<button onclick="changeHero('bot', this)">이동</button>
+</div>
+
+<div class="feature-card">
+<h3>📦 오픈소스</h3>
+<p>프로젝트 코드를 확인하고 기여해보세요.</p>
+<button onclick="changeHero('github', this)">이동</button>
+</div>
+
+</section>
+
+<div class="hero-content">
+
+<h1 id="hero-title">META Pi π</h1>
+<h2 id="hero-sub">파이 숫자를 탐험해보세요</h2>
+
+<p id="hero-desc">
+π 속에서 숫자를 검색하거나 특정 자리의 값을 확인해보세요.<br>
+</p>
+
+<div id="hero-action"></div>
+
+<div class="hero-buttons" id="hero-buttons" style="display:none;">
+<button onclick="document.getElementById('input').focus()">🔍 시작하기</button>
+<button class="secondary" onclick="randomPi()">🎲 랜덤 탐험</button>
+</div>
+
+</div> 
+
+</section>
 
 <div class="settings" id="settings">
 
@@ -157,7 +446,7 @@ cursor:pointer;
 
 </div>
 
-<div class="container">
+<div class="container" id="main-content" style="display:none;">
 
 <div class="card">
 
@@ -201,15 +490,13 @@ let results=[]
 let resultIndex=0
 
 function toggleSettings(){
+    const panel=document.getElementById("settings")
 
-const panel=document.getElementById("settings")
-
-if(panel.style.display==="block"){
-panel.style.display="none"
-}else{
-panel.style.display="block"
-}
-
+    if(panel.style.display==="block"){
+        panel.style.display="none"
+    }else{
+        panel.style.display="block"
+    }
 }
 
 const darkToggle=document.getElementById("darkToggle")
@@ -308,14 +595,94 @@ document.getElementById("result").innerHTML=output
 
 }
 
-function randomPi(){
+function changeHero(type, button){
 
-let pos=Math.floor(Math.random()*1000000)
+document.querySelectorAll(".nav button").forEach(btn=>{
+btn.classList.remove("active")
+})
 
-document.getElementById("mode").value="digit"
-document.getElementById("input").value=pos
+const navButtons = document.querySelectorAll(".nav button")
 
-run()
+navButtons.forEach(btn=>{
+if(
+    (type==="home" && btn.innerText.includes("홈")) ||
+    (type==="search" && btn.innerText.includes("파이 탐색")) ||
+    (type==="bot" && btn.innerText.includes("봇")) ||
+    (type==="github" && btn.innerText.includes("오픈"))
+){
+    btn.classList.add("active")
+}
+})
+
+const title = document.getElementById("hero-title")
+const sub = document.getElementById("hero-sub")
+const desc = document.getElementById("hero-desc")
+const action = document.getElementById("hero-action")
+
+const hero = document.querySelector(".hero-content")
+const heroBg = document.querySelector(".hero")
+
+const heroButtons = document.getElementById("hero-buttons")
+const mainContent = document.getElementById("main-content")
+
+const features = document.getElementById("features")
+
+hero.classList.remove("fade-in")
+hero.classList.add("fade-out")
+
+setTimeout(()=>{
+
+heroBg.className = "hero " + type
+
+heroButtons.style.display="none"
+mainContent.style.display="none"
+
+if(type==="home"){
+title.innerText="META Pi π"
+sub.innerText="파이 탐색과 다양한 수학 기능들"
+desc.innerHTML="©2026 METAINJI Dev"
+action.innerHTML=""
+
+mainContent.style.display="none"
+heroButtons.style.display="none"
+features.style.display="block"
+}
+
+if(type==="search"){
+heroButtons.style.display="flex"
+mainContent.style.display="block"
+features.style.display="none"
+
+title.innerText="π SEARCH"
+sub.innerText="파이 숫자를 탐험해보세요"
+desc.innerHTML="숫자를 검색하거나 특정 자리의 값을 확인해보세요."
+action.innerHTML=""
+}
+
+if(type==="bot"){
+title.innerText="DISCORD BOT"
+sub.innerText="디스코드 봇을 초대해보세요"
+desc.innerHTML="파이 검색 기능을 디스코드에서도 사용해보세요.<br>서버에 추가하고 바로 사용할 수 있습니다."
+
+features.style.display="none"
+
+action.innerHTML=`<button onclick="window.open('https://discord.com/oauth2/authorize?client_id=1482317676427874487&scope=bot%20applications.commands&permissions=274877975552')">봇 초대하기</button>`
+}
+
+if(type==="github"){
+title.innerText="OPEN SOURCE"
+sub.innerText="오픈소스를 확인해보세요"
+desc.innerHTML="이 프로젝트의 코드를 GitHub에서 확인할 수 있습니다.<br>자유롭게 수정을 제안하고 기여해보세요."
+
+features.style.display="none"
+
+action.innerHTML=`<button onclick="window.open('https://github.com/METAINJI/pi-search')">GitHub 보기</button>`
+}
+
+hero.classList.remove("fade-out")
+hero.classList.add("fade-in")
+
+},250)
 
 }
 
@@ -368,6 +735,10 @@ let output =
 prefix+highlight+suffix
 
 document.getElementById("result").innerHTML = output
+
+window.onload = () => {
+    changeHero("home", document.querySelector('.nav button'))
+}
 
 })
 
