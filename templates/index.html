@@ -392,7 +392,7 @@ transform:translateY(0);
 <header>
 
 <div class="logo" onclick="goHome()">
-<img id="logo-img" src="logo.png" alt="META Pi">
+<img id="logo-img" src="/static/logo.png" alt="META Pi">
 </div>
 
 <div class="nav">
@@ -777,9 +777,9 @@ function updateLogo(){
 const logo = document.getElementById("logo-img")
 
 if(document.body.classList.contains("dark")){
-    logo.src = "dark_logo.png"
+    logo.src = "/static/dark_logo.png"
 }else{
-    logo.src = "logo.png"
+    logo.src = "/static/logo.png"
 }
 }
 
