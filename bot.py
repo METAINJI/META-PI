@@ -416,6 +416,81 @@ async def prime_check(
     else:
         await interaction.response.send_message(f"❌ {number}은(는) 소수가 아닙니다.")
 
+
+def prime_factorization(n: int):
+    factors = []
+    
+    while n % 2 == 0:
+        factors.append(2)
+        n //= 2
+
+    for i in range(3, int(math.sqrt(n)) + 1, 2):
+        while n % i == 0:
+            factors.append(i)
+            n //= i
+
+    if n > 2:
+        factors.append(n)
+
+    return factors
+
+@bot.slash_command(name="소인수분해", description="숫자를 소인수분해합니다.")
+async def factor(
+    interaction: nextcord.Interaction,
+    number: int = nextcord.SlashOption(description="숫자 입력")
+):
+    if number <= 1:
+        await interaction.response.send_message("❌ 2 이상의 정수를 입력해주세요.")
+        return
+
+    factors = prime_factorization(number)
+    result = " × ".join(map(str, factors))
+
+    await interaction.response.send_message(f"🔢 {number} = {result}")
+
+@bot.slash_command(name="최대공약수", description="최대공약수를 구합니다.")
+async def gcd_command(
+    interaction: nextcord.Interaction,
+    a: int,
+    b: int
+):
+    result = math.gcd(a, b)
+    await interaction.response.send_message(f"📊 ({a}, {b})의 최대공약수 = {result}")
+
+@bot.slash_command(name="최소공배수", description="최소공배수를 구합니다.")
+async def lcm_command(
+    interaction: nextcord.Interaction,
+    a: int,
+    b: int
+):
+    result = abs(a * b) // math.gcd(a, b)
+    await interaction.response.send_message(f"📊 ({a}, {b})의 최소공배수 = {result}")
+
+@bot.slash_command(name="랜덤", description="범위 내 랜덤 숫자 생성")
+async def random_number(
+    interaction: nextcord.Interaction,
+    min: int,
+    max: int
+):
+    if min > max:
+        await interaction.response.send_message("❌ min이 max보다 클 수 없습니다.")
+        return
+
+    value = random.randint(min, max)
+    await interaction.response.send_message(f"🎲 결과: {value}")
+
+@bot.slash_command(name="주사위", description="주사위를 굴립니다.")
+async def dice(
+    interaction: nextcord.Interaction,
+    sides: int = nextcord.SlashOption(description="면 개수", default=6)
+):
+    if sides < 2:
+        await interaction.response.send_message("❌ 최소 2면 이상이어야 합니다.")
+        return
+
+    value = random.randint(1, sides)
+    await interaction.response.send_message(f"🎲 {sides}면 주사위 결과: {value}")
+
 async def run_bot():
 
     await bot.start(TOKEN)
