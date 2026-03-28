@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 import nextcord
 import random
 from nextcord.ext import commands
@@ -12,7 +13,8 @@ import math
 import asyncio
 import psutil
 
-TOKEN = os.getenv("DISCORD_TOKEN")
+load_dotenv()
+TOKEN = os.getenv("DISCORD_TOKEN").strip()
 
 intents = nextcord.Intents.default()
 bot = commands.Bot(intents=intents)
@@ -86,15 +88,16 @@ async def on_application_command_error(interaction: nextcord.Interaction, error:
 bot_start_time = time.time()
 
 def create_bar(value, max_value=100, length=20):
-    filled_length = int(length * min(value, max_value) / max_value)
+    value = max(0, min(value, max_value)) 
+    filled_length = int(length * value / max_value)
     empty_length = length - filled_length
-    bar = "█" * filled_length + "░" * empty_length
-    return bar
+    return "█" * filled_length + "░" * empty_length
 
 def format_uptime(seconds):
     days, remainder = divmod(int(seconds), 86400)
     hours, remainder = divmod(remainder, 3600)
     minutes, sec = divmod(remainder, 60)
+
     parts = []
     if days > 0:
         parts.append(f"{days}일")
@@ -103,6 +106,7 @@ def format_uptime(seconds):
     if minutes > 0:
         parts.append(f"{minutes}분")
     parts.append(f"{sec}초")
+
     return " ".join(parts)
 
 @bot.slash_command(name="핑", description="봇의 상태를 확인합니다.")
@@ -116,15 +120,21 @@ async def 핑(
         choices={"일반": "basic", "고급": "advanced"}
     )
 ):
+
+    await interaction.response.defer()
+
     if 모드 is None:
         모드 = "basic"
 
+    cpu = psutil.cpu_percent(interval=0.5)
+
     latency = round(bot.latency * 1000)
-    cpu = psutil.cpu_percent()
     mem = psutil.virtual_memory()
+
     ram_used = mem.used / (1024**3)
     ram_total = mem.total / (1024**3)
     ram_percent = mem.percent
+
     uptime_sec = time.time() - bot_start_time
     uptime_str = format_uptime(uptime_sec)
 
@@ -136,13 +146,19 @@ async def 핑(
         else:
             return "🔴 나쁨"
 
+    status_order = {"🟢 좋음": 0, "🟡 보통": 1, "🔴 나쁨": 2}
+
     cpu_status = status_check(cpu, (70, 90))
     ram_status = status_check(ram_percent, (70, 90))
     latency_status = status_check(latency, (150, 300))
 
     color_map = {"🟢 좋음": 0x00FFAA, "🟡 보통": 0xFFD700, "🔴 나쁨": 0xFF4C4C}
-    max_status = max([cpu_status, ram_status, latency_status],
-                     key=lambda s: ["🟢 좋음","🟡 보통","🔴 나쁨"].index(s))
+
+    max_status = max(
+        [cpu_status, ram_status, latency_status],
+        key=lambda s: status_order[s]
+    )
+
     embed_color = color_map[max_status]
 
     cpu_bar = create_bar(cpu)
@@ -157,38 +173,50 @@ async def 핑(
 
     embed.add_field(name=f"⏱️ 핑 {latency_status}", value=f"{latency}ms\n`{latency_bar}`", inline=False)
     embed.add_field(name=f"🖥️ CPU 사용량 {cpu_status}", value=f"{cpu}%\n`{cpu_bar}`", inline=False)
-    embed.add_field(name=f"💾 RAM 사용량 {ram_status}", value=f"{ram_used:.2f}GB / {ram_total:.2f}GB ({ram_percent}%)\n`{ram_bar}`", inline=False)
+    embed.add_field(name=f"💾 RAM 사용량 {ram_status}",
+                    value=f"{ram_used:.2f}GB / {ram_total:.2f}GB ({ram_percent}%)\n`{ram_bar}`",
+                    inline=False)
     embed.add_field(name="⏳ 서버 가동 시간", value=uptime_str, inline=False)
 
     if 모드 == "advanced":
-        embed.add_field(name="​", value="**─── 🛠️ 고급 정보 ───**", inline=False)
+        embed.add_field(name="", value="**─── 🛠️ 고급 정보 ───**", inline=False)
 
         guilds = len(bot.guilds)
-        users = sum(g.member_count for g in bot.guilds)
+        users = sum(g.member_count or 0 for g in bot.guilds)
         shards = bot.shard_count or 1
 
-        net_before = psutil.net_io_counters()
-        await asyncio.sleep(1)
-        net_after = psutil.net_io_counters()
-        upload_speed = (net_after.bytes_sent - net_before.bytes_sent) * 8 / (1024**2)  # Mbps
-        download_speed = (net_after.bytes_recv - net_before.bytes_recv) * 8 / (1024**2)  # Mbps
+        net1 = psutil.net_io_counters()
+        await asyncio.sleep(0.2) 
+        net2 = psutil.net_io_counters()
+
+        upload_speed = (net2.bytes_sent - net1.bytes_sent) * 8 / (1024**2) / 0.2
+        download_speed = (net2.bytes_recv - net1.bytes_recv) * 8 / (1024**2) / 0.2
 
         interfaces = psutil.net_if_stats()
         net_io_pernic = psutil.net_io_counters(pernic=True)
+
         iface_status_list = []
-        max_speed_reference = 100
+
         for name, stats in interfaces.items():
+            if name not in net_io_pernic:
+                continue
+
             sent = net_io_pernic[name].bytes_sent / (1024**2)
             recv = net_io_pernic[name].bytes_recv / (1024**2)
-            speed_mbps = stats.speed if stats.speed > 0 else max_speed_reference
-            bar_length = int((speed_mbps / max_speed_reference) * 20)
-            bar_length = min(bar_length, 20)
-            bar = "█" * bar_length + "░" * (20 - bar_length)
+
+            speed = stats.speed if stats.speed > 0 else 100
+
+            bar = create_bar(speed, max_value=100)
             status_emoji = "🟢" if stats.isup else "🔴"
+
             iface_status_list.append(
-                f"{name} {status_emoji} `{bar}` ↑{sent:.1f}MB ↓{recv:.1f}MB ({speed_mbps}Mbps)"
+                f"{name} {status_emoji} `{bar}` ↑{sent:.1f}MB ↓{recv:.1f}MB ({speed}Mbps)"
             )
+
         iface_status_str = "\n".join(iface_status_list)
+
+        if len(iface_status_str) > 1000:
+            iface_status_str = iface_status_str[:1000] + "\n..."
 
         embed.add_field(name="⬆️ 업로드 속도", value=f"{upload_speed:.2f} Mbps", inline=True)
         embed.add_field(name="⬇️ 다운로드 속도", value=f"{download_speed:.2f} Mbps", inline=True)
@@ -197,7 +225,7 @@ async def 핑(
         embed.add_field(name="🧩 샤드", value=str(shards), inline=True)
         embed.add_field(name="💻 네트워크 인터페이스 상태", value=iface_status_str, inline=False)
 
-    await interaction.response.send_message(embed=embed)
+    await interaction.followup.send(embed=embed)
 
 
 class JumpModal(Modal):
