@@ -1,18 +1,41 @@
 import asyncio
 import os
 import uvicorn
+import threading
+import traceback
 from bot import run_bot
 from web import app
 
-async def start():
-    loop = asyncio.get_event_loop()
 
-    bot_task = loop.create_task(run_bot())
+def run_web():
+    try:
+        print("Starting web server...")
 
-    config = uvicorn.Config(app, host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
-    server = uvicorn.Server(config)
-    web_task = loop.create_task(server.serve())
+        uvicorn.run(
+            app,
+            host="0.0.0.0",
+            port=int(os.environ.get("PORT", 8080)),
+            log_level="debug"
+        )
 
-    await asyncio.gather(bot_task, web_task)
+    except Exception as e:
+        print("[ERROR] Web server crashed:", e)
+        traceback.print_exc()
 
-asyncio.run(start())
+
+async def main():
+    print("STARTING")
+
+    web_thread = threading.Thread(target=run_web, daemon=True)
+    web_thread.start()
+
+    try:
+        await run_bot()
+    except Exception as e:
+        print("[ERROR] bot crashed:", e)
+        traceback.print_exc()
+
+    await asyncio.sleep(1)
+
+if __name__ == "__main__":
+    asyncio.run(main())
