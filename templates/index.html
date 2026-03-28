@@ -448,6 +448,8 @@ opacity:0;
 transform:translateY(40px);
 transition:all 0.6s ease;
 text-align:center;
+cursor:pointer;
+transition:all 0.25s ease;
 }
 
 .feature-card.show{
@@ -456,7 +458,12 @@ transform:translateY(0);
 }
 
 .feature-card:hover{
-transform:translateY(-5px);
+transform:translateY(-5px) scale(1.01);
+box-shadow:0 20px 40px rgba(0,0,0,0.15);
+}
+
+.feature-card:active{
+transform:scale(0.98);
 }
 
 .feature-card h3{
@@ -768,7 +775,7 @@ color: #6b6f76;
 
 <div class="feature-grid">
 
-<div class="feature-card">
+<div class="feature-card" onclick="changeHero('search', this)">
     
 <div class="card-top">
 <h3>🔎 파이 검색</h3>
@@ -779,13 +786,72 @@ color: #6b6f76;
 <img src="/static/pi-search.png">
 </div>
 
-<div class="card-bottom">
-<button onclick="changeHero('search', this)">이동</button>
 </div>
+
+<div class="feature-card" onclick="changeHero('bot', this)">
+  <div class="card-top">
+    <h3>🔢 소수판별</h3>
+    <p>원하는 숫자가 소수인지 합성수인지 확인해보세요.</p>
+  </div>
+  <div class="card-image">
+    <img src="/static/prime.png">
+  </div>
+</div>
+
+<div class="feature-card" onclick="changeHero('bot', this)">
+  <div class="card-top">
+    <h3>🧮 소인수분해</h3>
+    <p>원하는 숫자를 소인수분해 해보세요.</p>
+  </div>
+  <div class="card-image">
+    <img src="/static/factor.png">
+  </div>
+</div>
+
+<div class="feature-card" onclick="changeHero('bot', this)">
+
+  <div class="card-top">
+    <h3>🔀 랜덤</h3>
+    <p>범위 내에서 랜덤한 숫자를 뽑아보세요</p>
+  </div>
+
+  <div class="card-image">
+    <img src="/static/random.png">
+  </div>
 
 </div>
 
-<div class="feature-card">
+<div class="feature-card" onclick="changeHero('bot', this)">
+  <div class="card-top">
+    <h3>🎲 주사위</h3>
+    <p>원하는 주사위 눈 개수로 주사위를 굴려보세요.</p>
+  </div>
+  <div class="card-image">
+    <img src="/static/dice.png">
+  </div>
+</div>
+
+<div class="feature-card" onclick="changeHero('bot', this)">
+  <div class="card-top">
+    <h3>⏫ 최대공약수</h3>
+    <p>원하는 수의 최대공약수를 구해보세요.</p>
+  </div>
+  <div class="card-image">
+    <img src="/static/gcd.png">
+  </div>
+</div>
+
+<div class="feature-card" onclick="changeHero('bot', this)">
+  <div class="card-top">
+    <h3>⏬ 최소공배수</h3>
+    <p>원하는 수의 최소공배수를 구해보세요.</p>
+  </div>
+  <div class="card-image">
+    <img src="/static/lcm.png">
+  </div>
+</div>
+
+<div class="feature-card" onclick="changeHero('bot', this)">
 
 <div class="card-top">
 <h3>🖥️ 디스코드 봇</h3>
@@ -796,13 +862,9 @@ color: #6b6f76;
 <img src="/static/discord.png">
 </div>
 
-<div class="card-bottom">
-<button onclick="changeHero('bot', this)">이동</button>
 </div>
 
-</div>
-
-<div class="feature-card">
+<div class="feature-card" onclick="changeHero('github', this)">
 
 <div class="card-top">
 <h3>📦 오픈소스</h3>
@@ -811,10 +873,6 @@ color: #6b6f76;
 
 <div class="card-image">
 <img src="/static/open-source.png">
-</div>
-
-<div class="card-bottom">
-<button onclick="changeHero('github', this)">이동</button>
 </div>
 
 </div>
