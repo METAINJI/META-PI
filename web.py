@@ -1,25 +1,55 @@
+import os
+import web
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
 
+print("WEB.PY LOADED")
+
 with open("pi.txt") as f:
     PI = f.read().replace("\n", "")
 
 CONTEXT = 10
 
-app = FastAPI()
+web.web.app = FastAPI()
 
-templates = Jinja2Templates(directory="templates")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
-@app.get("/", response_class=HTMLResponse)
+web.web.app.mount(
+    "/static",
+    StaticFiles(directory=os.path.join(BASE_DIR, "static")),
+    name="static"
+)
+
+@web.web.app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    print("HOME CALLED")
+    return templates.TemplateResponse(
+    request,
+    "index.html",
+    {}
+)
 
-@app.get("/context")
+@web.web.app.get("/tos", response_class=HTMLResponse)
+async def get_tos():
+    with open("templates/tos.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+@web.web.app.get("/privacy-policy", response_class=HTMLResponse)
+async def get_privacy():
+    with open("templates/privacy-policy.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+@web.web.app.get("/", response_class=HTMLResponse)
+async def read_root():
+    with open("templates/index.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+@web.web.app.get("/context")
 def context(pos: int, length: int = 5):
 
     start = max(pos - 10, 0)
@@ -32,7 +62,7 @@ def context(pos: int, length: int = 5):
         "start": start
     }
 
-@app.get("/digit")
+@web.web.app.get("/digit")
 def digit(position: int):
 
     if position < 0 or position >= len(PI):
@@ -54,7 +84,7 @@ def digit(position: int):
 
 MAX_RESULTS = 10000
 
-@app.get("/search")
+@web.web.app.get("/search")
 def search(q: str):
 
     positions = []
