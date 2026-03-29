@@ -189,6 +189,8 @@ padding:0 30px;
 gap:0;
 position:relative;
 overflow:visible;
+backdrop-filter:blur(12px);
+-webkit-backdrop-filter:blur(12px);
 z-index:10;
 }
 
@@ -250,12 +252,12 @@ position:relative;
   transform:rotate(90deg);
 }
 
-.nav-more:hover .arrow{
-  transform:rotate(0deg);
+.nav-more.open .arrow {
+  transform: rotate(0deg);
 }
 
-.settings-menu:hover .arrow{
-  transform:rotate(0deg);
+.settings-menu.open .arrow {
+  transform: rotate(0deg);
 }
 
 .nav-more{
@@ -269,9 +271,11 @@ right:0;
 
 .dropdown{
 position:absolute;
-top:calc(100% + 8px);
-margin-top:0;
+top:100%;
+margin-top:24px;
 overflow:visible;
+
+transition:opacity 0.2s ease, transform 0.2s ease;
 
 left:0;
 right:0;
@@ -303,21 +307,32 @@ background:rgba(255,255,255,0.65);
 backdrop-filter:blur(12px);
 -webkit-backdrop-filter:blur(12px);
 
+transform:translateY(10px);
+opacity:0;
+transition:all 0.25s ease;
+
 box-shadow:
 0 10px 30px rgba(0,0,0,0.15),
 0 2px 10px rgba(0,0,0,0.1);
 }
 
-.dropdown{
-  transform:translateY(10px);
-  opacity:0;
-  transition:all 0.25s ease;
+.dropdown.open {
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
 }
 
-.nav:has(.nav-more:hover) .more-dropdown,
-.nav:has(.more-dropdown:hover) .more-dropdown{
-  transform:translateY(0);
-  opacity:1;
+.nav-more{
+  position:relative;
+}
+
+.nav-more::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-12px;
+  height:12px;
 }
 
 body.dark .dropdown{
@@ -379,13 +394,6 @@ cursor:default;
   transition:transform 0.25s ease;
 }
 
-.dropdown-column > div:not(.toggle-item):hover{
-  color:var(--accent);
-}
-
-.dropdown-column > div:not(.toggle-item):hover::after{
-  transform:scaleX(1);
-}
 
 .dropdown-title::after{
 display:none;
@@ -397,19 +405,6 @@ display:none;
   transform:translateY(-10px);
   pointer-events:none;
   transition:all 0.25s ease;
-}
-
-.nav:has(.nav-more:hover) .more-dropdown,
-.nav:has(.more-dropdown:hover) .more-dropdown{
-  opacity:1;
-  transform:translateY(0);
-  pointer-events:auto;
-}
-
-.settings-menu:hover .settings-dropdown{
-  opacity:1;
-  transform:translateY(0);
-  pointer-events:auto;
 }
 
 :root{
@@ -450,6 +445,9 @@ top: 0;
 z-index: 1000;
 background:#fff;
 box-shadow:0 2px 10px rgba(0,0,0,0.05);
+
+backdrop-filter:blur(12px);
+-webkit-backdrop-filter:blur(12px);
 
 animation:slideDown 1.2s ease;
 }
@@ -525,6 +523,8 @@ box-shadow:0 6px 18px rgba(0,0,0,0.08);
 margin-bottom:25px;
 transition:background .35s;
 display:none;
+backdrop-filter:blur(12px);
+-webkit-backdrop-filter:blur(12px);
 }
 
 .card.active{
@@ -874,12 +874,12 @@ margin-right:6px;
 <button onclick="changeHero('factor', this)">소인수분해</button>
 
 <div class="nav-more">
-<button class="more-btn">
+<button id="moreBtn" class="more-btn">
   더보기 <span class="arrow">▾</span>
 </button>
 </div>
 
-<div class="dropdown more-dropdown">
+<div class="dropdown more-dropdown" id="moreMenu">
 <button onclick="changeHero('gcdlcm', this)">GCD & LCM</button>
 <button onclick="changeHero('random', this)">랜덤</button>
 <button onclick="changeHero('dice', this)">주사위</button>
@@ -888,11 +888,11 @@ margin-right:6px;
 <button onclick="changeHero('bot', this)">봇 추가하기</button>
 
 <div class="nav-item settings-menu">
-<button class="more-btn">
+<button id="settingsBtn" class="more-btn">
   설정 <span class="arrow">▾</span>
 </button>
 
-<div class="dropdown settings-dropdown">
+<div class="dropdown settings-dropdown" id="settingsMenu">
 <div class="dropdown-column">
 <div class="toggle-item">
 <span>다크 모드</span>
@@ -1521,10 +1521,6 @@ prefix+highlight+suffix
 
 document.getElementById("result").innerHTML = output
 
-window.onload = () => {
-    changeHero("home", document.querySelector('.nav button'))
-}
-
 })
 
 }
@@ -1912,6 +1908,48 @@ window.addEventListener("load", () => {
   }
 
 })
+
+const moreBtn = document.getElementById("moreBtn")
+const moreMenu = document.getElementById("moreMenu")
+
+const settingsBtn = document.getElementById("settingsBtn")
+const settingsMenu = document.getElementById("settingsMenu")
+
+moreBtn.addEventListener("click", (e)=>{
+  e.stopPropagation()
+
+  moreMenu.classList.toggle("open")
+  moreBtn.parentElement.classList.toggle("open")
+
+  settingsMenu.classList.remove("open")
+  settingsBtn.parentElement.classList.remove("open")
+})
+
+settingsBtn.addEventListener("click", (e)=>{
+  e.stopPropagation()
+
+  settingsMenu.classList.toggle("open")
+  settingsBtn.parentElement.classList.toggle("open")
+
+  moreMenu.classList.remove("open")
+  moreBtn.parentElement.classList.remove("open")
+})
+
+window.addEventListener("click", (e)=>{
+  if (!moreMenu.contains(e.target) && !moreBtn.contains(e.target)) {
+    moreMenu.classList.remove("open")
+    moreBtn.parentElement.classList.remove("open")
+  }
+
+  if (!settingsMenu.contains(e.target) && !settingsBtn.contains(e.target)) {
+    settingsMenu.classList.remove("open")
+    settingsBtn.parentElement.classList.remove("open")
+  }
+})
+
+window.onload = () => {
+    changeHero("home", document.querySelector('.nav button'))
+}
 
 function goHome(){
 location.reload()
