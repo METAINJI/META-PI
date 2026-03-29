@@ -14,29 +14,53 @@ align-items:center;
 justify-content:center;
 text-align:center;
 position:relative;
-overflow:visible;
+overflow:hidden;
 }
 
 .hero-content{
-z-index:2;
+  position:relative;
+  z-index:2;
+
+  background:rgba(0,0,0,0.35);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+
+  padding:30px 40px;
+  border-radius:20px;
+
+  max-width:700px;
+
+  border:1px solid rgba(255,255,255,0.15);
+  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+}
+
+body:not(.dark) .hero-content{
+  background:rgba(255,255,255,0.6);
+}
+
+body.dark .hero-content{
+  background:rgba(0,0,0,0.4);
 }
 
 .hero h1{
 font-size:56px;
 margin:0;
 font-weight:800;
+text-shadow:0 2px 8px rgba(0,0,0,0.4);
 }
 
 .hero h2{
 font-size:32px;
 margin:10px 0 20px;
 color:var(--accent);
+text-shadow:0 2px 8px rgba(0,0,0,0.4);
 }
 
 .hero p{
 font-size:16px;
 opacity:0.8;
 line-height:1.6;
+text-shadow:0 2px 8px rgba(0,0,0,0.4);
 }
 
 .hero-buttons{
@@ -47,7 +71,7 @@ justify-content:center;
 }
 
 .hero::before{
-content:"";
+content:none;
 position:absolute;
 width:400px;
 height:400px;
@@ -61,7 +85,7 @@ animation:float1 6s ease-in-out infinite;
 }
 
 .hero::after{
-content:"";
+content:none;
 position:absolute;
 width:600px;
 height:300px;
@@ -84,64 +108,60 @@ animation:float1 6s ease-in-out infinite;
 50%{transform:translateY(15px);}
 }
 
-.hero.home::before{
-width:320px;
-height:320px;
-top:30px;
-right:10%;
-background:#8f6fff;
-opacity:0.3;
-border-radius:60% 40% 30% 70% / 60% 30% 70% 40%;
-animation:float1 6s ease-in-out infinite;
+.hero.home{
+  background:url('/static/home.png') no-repeat center;
+  background-size:300px;
+  opacity:1;
+  background-size:cover;
 }
 
-.hero.home::after{
-width:450px;
-height:250px;
-bottom:-60px;
-left:10%;
-background:#5865f2;
-opacity:0.2;
-border-radius:40% 60% 70% 30% / 50% 60% 40% 50%;
-animation:float2 7s ease-in-out infinite;
+.hero.search{
+  background:url('/static/pi-search.png') no-repeat center;
+  background-size:300px;
+  opacity:1;
+  background-size:cover;
 }
 
-.hero.bot::before{
-width:300px;
-height:300px;
-top:20px;
-right:5%;
-border-radius:30%;
-background:#5865f2;
-opacity:0.25;
+.hero.prime{
+  background:url('/static/prime.png') no-repeat center;
+  background-size:300px;
+  opacity:1;
+  background-size:cover;
 }
 
-.hero.bot::after{
-width:500px;
-height:200px;
-bottom:0;
-left:5%;
-border-radius:20%;
-background:#404eed;
+.hero.factor{
+  background:url('/static/factor.png') no-repeat center;
+  background-size:300px;
+  opacity:1;
+  background-size:cover;
 }
 
-.hero.github::before{
-width:350px;
-height:350px;
-top:30px;
-right:15%;
-border-radius:10%;
-background:#333;
-opacity:0.3;
+.hero.gcdlcm{
+  background:url('/static/gcd.png') no-repeat center;
+  background-size:300px;
+  opacity:1;
+  background-size:cover;
 }
 
-.hero.github::after{
-width:400px;
-height:200px;
-bottom:20px;
-left:15%;
-border-radius:10%;
-background:#24292e;
+.hero.random{
+  background:url('/static/random.png') no-repeat center;
+  background-size:300px;
+  opacity:1;
+  background-size:cover;
+}
+
+.hero.dice{
+  background:url('/static/dice.png') no-repeat center;
+  background-size:300px;
+  opacity:1;
+  background-size:cover;
+}
+
+.hero.bot{
+  background:url('/static/bot.png') no-repeat center;
+  background-size:300px;
+  opacity:1;
+  background-size:cover;
 }
 
 .hero-content{
@@ -167,6 +187,9 @@ display:flex;
 align-items:center;
 padding:0 30px;
 gap:0;
+position:relative;
+overflow:visible;
+z-index:10;
 }
 
 .nav a{
@@ -220,6 +243,25 @@ transform:scaleX(1);
 position:relative;
 }
 
+.arrow{
+  display:inline-block;
+  transition:transform 0.3s ease;
+
+  transform:rotate(90deg);
+}
+
+.nav-more:hover .arrow{
+  transform:rotate(0deg);
+}
+
+.settings-menu:hover .arrow{
+  transform:rotate(0deg);
+}
+
+.nav-more{
+  position:relative;
+}
+
 .settings-menu .dropdown{
 left:auto;
 right:0;
@@ -227,11 +269,17 @@ right:0;
 
 .dropdown{
 position:absolute;
-top:100%;
+top:calc(100% + 8px);
+margin-top:0;
+overflow:visible;
+
 left:0;
-right:auto;
-width:max-content;
-max-width:90vw;
+right:0;
+
+max-width:none;
+
+height:auto;
+max-height:none;
 
 background:var(--card);
 border-top:1px solid var(--border);
@@ -240,7 +288,6 @@ border-bottom:1px solid var(--border);
 display:flex;
 gap:40px;
 justify-content:flex-start;
-
 padding:16px 20px;
 
 opacity:0;
@@ -248,6 +295,45 @@ transform:translateY(-10px);
 pointer-events:none;
 transition:all 0.25s ease;
 z-index:100;
+
+border-radius:16px;
+border:1px solid rgba(255,255,255,0.15);
+
+background:rgba(255,255,255,0.65);
+backdrop-filter:blur(12px);
+-webkit-backdrop-filter:blur(12px);
+
+box-shadow:
+0 10px 30px rgba(0,0,0,0.15),
+0 2px 10px rgba(0,0,0,0.1);
+}
+
+.dropdown{
+  transform:translateY(10px);
+  opacity:0;
+  transition:all 0.25s ease;
+}
+
+.nav:has(.nav-more:hover) .more-dropdown,
+.nav:has(.more-dropdown:hover) .more-dropdown{
+  transform:translateY(0);
+  opacity:1;
+}
+
+body.dark .dropdown{
+  background:rgba(30,30,35,0.7);
+}
+
+.more-dropdown{
+  left:0;
+  right:0;
+  width:100%;
+}
+
+.settings-dropdown{
+  left:auto;
+  right:0;
+  width:auto;
 }
 
 .dropdown-column{
@@ -265,53 +351,65 @@ margin-bottom:8px;
 cursor:default;
 }
 
-.dropdown-column > div{
-position:relative;
-padding:10px 20px;
-width:100%;
-font-size:15px;
-cursor:pointer;
-width:max-content;
+.dropdown-column > div:not(.toggle-item){
+  position:relative;
+  padding:10px 20px;
+  width:max-content;
 
-display:flex;
-justify-content:center;
-align-items:center;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
 
-text-align:center;
-
-transition:color 0.2s ease;
+  cursor:pointer;
+  transition:color 0.2s ease;
 }
 
-.dropdown-column > div::after{
-content:"";
-position:absolute;
-left:0;
-bottom:0;
-width:100%;
-height:2px;
-background:var(--accent);
+.dropdown-column > div:not(.toggle-item)::after{
+  content:"";
+  position:absolute;
+  left:0;
+  bottom:0;
+  width:100%;
+  height:2px;
+  background:var(--accent);
 
-transform:scaleX(0);
-transform-origin:left;
-transition:transform 0.25s ease;
+  transform:scaleX(0);
+  transform-origin:left;
+  transition:transform 0.25s ease;
 }
 
-.dropdown-column > div:hover{
-color:var(--accent);
+.dropdown-column > div:not(.toggle-item):hover{
+  color:var(--accent);
 }
 
-.dropdown-column > div:hover::after{
-transform:scaleX(1);
+.dropdown-column > div:not(.toggle-item):hover::after{
+  transform:scaleX(1);
 }
 
 .dropdown-title::after{
 display:none;
 }
 
-.nav-item:hover .dropdown{
-opacity:1;
-transform:translateY(0);
-pointer-events:auto;
+.more-dropdown,
+.settings-dropdown{
+  opacity:0;
+  transform:translateY(-10px);
+  pointer-events:none;
+  transition:all 0.25s ease;
+}
+
+.nav:has(.nav-more:hover) .more-dropdown,
+.nav:has(.more-dropdown:hover) .more-dropdown{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
+}
+
+.settings-menu:hover .settings-dropdown{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
 }
 
 :root{
@@ -341,10 +439,55 @@ overflow-x:hidden;
 header{
 display:flex;
 justify-content:space-between;
-align-items:center;
+align-items:stretch;
 padding:16px 50px;
 border-bottom:none;
 background:var(--card);
+overflow:visible;
+
+position:sticky;
+top: 0;
+z-index: 1000;
+background:#fff;
+box-shadow:0 2px 10px rgba(0,0,0,0.05);
+
+animation:slideDown 1.2s ease;
+}
+
+@keyframes slideDown{
+from{
+  transform: translateY(-100%);
+  opacity: 0;
+}
+to{
+  transform: translateY(0);
+  opacity: 1;
+}
+}
+
+body.dark header{
+  background: #1e1f23;
+  color: #fff;
+}
+
+body.dark .nav button{
+  color: #ccc;
+}
+
+body.dark .nav button:hover{
+  color: #fff;
+}
+
+body.dark .dropdown{
+  background: #2a2d31;
+}
+
+body.dark .dropdown button{
+  color: #ddd;
+}
+
+body.dark .dropdown button:hover{
+  background: #3a3d42;
 }
 
 .logo{
@@ -381,6 +524,11 @@ border-radius:14px;
 box-shadow:0 6px 18px rgba(0,0,0,0.08);
 margin-bottom:25px;
 transition:background .35s;
+display:none;
+}
+
+.card.active{
+display:block;
 }
  
 .input-group{
@@ -603,7 +751,7 @@ cursor:pointer;
 opacity:0;
 pointer-events:none;
 transition:0.3s;
-z-index:999;
+z-index:5500;
 }
 
 #topBtn.show{
@@ -679,6 +827,33 @@ font-size: 13px;
 color: #6b6f76;
 }
 
+.mode-buttons{
+display:flex;
+gap:10px;
+margin-bottom:15px;
+}
+
+.mode-buttons button{
+flex:1;
+padding:10px;
+border-radius:10px;
+border:none;
+background:#eee;
+cursor:pointer;
+}
+
+.mode-buttons button.active{
+background:#4CAF50;
+color:white;
+}
+
+.menu-icon{
+width:20px;
+height:20px;
+object-fit:contain;
+margin-right:6px;
+}
+
 </style>
 </head>
 
@@ -692,49 +867,33 @@ color: #6b6f76;
 
 <div class="nav">
 
-<div class="nav-item">
 <button class="active" onclick="changeHero('home', this)">홈</button>
-</div>
 
-<div class="nav-item">
 <button onclick="changeHero('search', this)">파이 검색</button>
+<button onclick="changeHero('prime', this)">소수 판별</button>
+<button onclick="changeHero('factor', this)">소인수분해</button>
 
-<div class="dropdown">
-<div class="dropdown-column">
-<div onclick="changeHero('search', document.querySelectorAll('.nav button')[1])">파이 검색하기</div>
-<div onclick="scrollToSection('section2')">추가 예정</div>
-</div>
-</div>
+<div class="nav-more">
+<button class="more-btn">
+  더보기 <span class="arrow">▾</span>
+</button>
 </div>
 
-<div class="nav-item">
+<div class="dropdown more-dropdown">
+<button onclick="changeHero('gcdlcm', this)">GCD & LCM</button>
+<button onclick="changeHero('random', this)">랜덤</button>
+<button onclick="changeHero('dice', this)">주사위</button>
+</div>
+
 <button onclick="changeHero('bot', this)">봇 추가하기</button>
 
-<div class="dropdown">
-<div class="dropdown-column">
-<div onclick="changeHero('bot', document.querySelectorAll('.nav button')[2])">봇 초대하기</div>
-<div onclick="scrollToSection('section3')">추가 예정</div>
-</div>
-</div>
-</div>
-
-<div class="nav-item">
-<button onclick="changeHero('github', this)">오픈 소스</button>
-
-<div class="dropdown">
-<div class="dropdown-column">
-<div onclick="changeHero('github', document.querySelectorAll('.nav button')[3])">GitHub 보기</div>
-<div onclick="scrollToSection('section4')">추가 예정</div>
-</div>
-</div>
-</div>
-
 <div class="nav-item settings-menu">
-<button>설정</button>
+<button class="more-btn">
+  설정 <span class="arrow">▾</span>
+</button>
 
-<div class="dropdown">
+<div class="dropdown settings-dropdown">
 <div class="dropdown-column">
-
 <div class="toggle-item">
 <span>다크 모드</span>
 <label class="switch">
@@ -742,9 +901,10 @@ color: #6b6f76;
 <span class="slider"></span>
 </label>
 </div>
+</div>
+</div>
+</div>
 
-</div>
-</div>
 </div>
 
 </header>
@@ -763,7 +923,7 @@ color: #6b6f76;
 <div id="hero-action"></div>
 
 <div class="hero-buttons" id="hero-buttons" style="display:none;">
-<button onclick="document.getElementById('input').focus()">🔍 시작하기</button>
+<button onclick="document.getElementById('input').focus()">시작하기</button>
 </div>
 
 </div>
@@ -771,7 +931,7 @@ color: #6b6f76;
 
 <section class="features" id="features">
 
-<h2>기능 살펴보기</h2>
+<h2>대표 기능 살펴보기</h2>
 
 <div class="feature-grid">
 
@@ -788,91 +948,64 @@ color: #6b6f76;
 
 </div>
 
-<div class="feature-card" onclick="changeHero('bot', this)">
-  <div class="card-top">
-    <h3>🔢 소수판별</h3>
-    <p>원하는 숫자가 소수인지 합성수인지 확인해보세요.</p>
-  </div>
-  <div class="card-image">
-    <img src="/static/prime.png">
-  </div>
+<div class="feature-card" onclick="changeHero('prime', this)">
+<div class="card-top">
+<h3>🔢 소수판별</h3>
+<p>원하는 숫자가 소수인지 합성수인지 확인해보세요.</p>
+</div>
+<div class="card-image">
+<img src="/static/prime.png">
+</div>
 </div>
 
-<div class="feature-card" onclick="changeHero('bot', this)">
-  <div class="card-top">
-    <h3>🧮 소인수분해</h3>
-    <p>원하는 숫자를 소인수분해 해보세요.</p>
-  </div>
-  <div class="card-image">
-    <img src="/static/factor.png">
-  </div>
+<div class="feature-card" onclick="changeHero('factor', this)">
+
+<div class="card-top">
+<h3>🧮 소인수분해</h3>
+<p>원하는 숫자를 소인수분해 해보세요.</p>
 </div>
 
-<div class="feature-card" onclick="changeHero('bot', this)">
-
-  <div class="card-top">
-    <h3>🔀 랜덤</h3>
-    <p>범위 내에서 랜덤한 숫자를 뽑아보세요</p>
-  </div>
-
-  <div class="card-image">
-    <img src="/static/random.png">
-  </div>
+<div class="card-image">
+<img src="/static/factor.png">
+</div>
 
 </div>
 
-<div class="feature-card" onclick="changeHero('bot', this)">
-  <div class="card-top">
-    <h3>🎲 주사위</h3>
-    <p>원하는 주사위 눈 개수로 주사위를 굴려보세요.</p>
-  </div>
-  <div class="card-image">
-    <img src="/static/dice.png">
-  </div>
+<div class="feature-card" onclick="changeHero('random', this)">
+
+<div class="card-top">
+<h3>🔀 랜덤</h3>
+<p>범위 내에서 랜덤한 숫자를 뽑아보세요</p>
 </div>
 
-<div class="feature-card" onclick="changeHero('bot', this)">
-  <div class="card-top">
-    <h3>⏫ 최대공약수</h3>
-    <p>원하는 수의 최대공약수를 구해보세요.</p>
-  </div>
-  <div class="card-image">
-    <img src="/static/gcd.png">
-  </div>
+<div class="card-image">
+<img src="/static/random.png">
 </div>
 
-<div class="feature-card" onclick="changeHero('bot', this)">
-  <div class="card-top">
-    <h3>⏬ 최소공배수</h3>
-    <p>원하는 수의 최소공배수를 구해보세요.</p>
-  </div>
-  <div class="card-image">
-    <img src="/static/lcm.png">
-  </div>
+</div>
+
+<div class="feature-card" onclick="changeHero('dice', this)">
+
+<div class="card-top">
+<h3>🎲 주사위</h3>
+<p>원하는 주사위 눈 개수로 주사위를 굴려보세요.</p>
+</div>
+
+<div class="card-image">
+<img src="/static/dice.png">
+</div>
+
 </div>
 
 <div class="feature-card" onclick="changeHero('bot', this)">
 
 <div class="card-top">
 <h3>🖥️ 디스코드 봇</h3>
-<p>디스코드에서 바로 파이를 검색하세요.</p>
+<p>디스코드에서 파이를 검색해보세요.</p>
 </div>
 
 <div class="card-image">
 <img src="/static/discord.png">
-</div>
-
-</div>
-
-<div class="feature-card" onclick="changeHero('github', this)">
-
-<div class="card-top">
-<h3>📦 오픈소스</h3>
-<p>프로젝트 코드를 확인하고 기여해보세요.</p>
-</div>
-
-<div class="card-image">
-<img src="/static/open-source.png">
 </div>
 
 </div>
@@ -883,7 +1016,7 @@ color: #6b6f76;
 
 <div class="container" id="main-content" style="display:none;">
 
-<div class="card">
+<div class="card" id="search-card">
 
 <h2>파이 검색</h2>
 
@@ -894,7 +1027,7 @@ color: #6b6f76;
 <option value="digit">자리 검색</option>
 </select>
 
-<input id="input" placeholder="숫자 또는 자리 입력">
+<input id="input" type="number" placeholder="숫자 또는 자리 입력">
 
 </div>
 
@@ -902,7 +1035,7 @@ color: #6b6f76;
 
 </div>
 
-<div class="card">
+<div class="card" id="result-card">
 
 <h3>검색 결과</h3>
 
@@ -915,8 +1048,97 @@ color: #6b6f76;
 <button onclick="prevResult()">⬅ 이전</button>
 <button onclick="nextResult()">다음 ➡</button>
 
-<input id="jumpIndex" placeholder="번호 입력" style="width:80px;">
+<input id="jumpIndex" type="number" min="1" placeholder="번호 입력" style="width:80px;">
 <button onclick="jumpTo()">↹ 이동 </button>
+
+</div>
+
+<div class="card" id="prime-card">
+
+<h2>소수 판별</h2>
+
+<div class="input-group">
+<input id="prime-input" placeholder="숫자를 입력하세요">
+</div>
+
+<button onclick="checkPrime()">판별하기</button>
+
+<div id="prime-time"></div>
+
+<div id="prime-result" class="result"></div>
+<div id="prime-detail" class="result" style="font-size:14px; opacity:0.8;"></div>
+
+</div>
+
+<div class="card" id="factor-card">
+
+<h2>소인수분해</h2>
+
+<div class="input-group">
+  <input id="factor-input" type="number" placeholder="숫자를 입력하세요">
+</div>
+
+<button onclick="factorize()">분해하기</button>
+
+<div id="factor-time"></div>
+
+<div id="factor-result" class="result"></div>
+<div id="factor-detail" class="result" style="font-size:14px; opacity:0.8;"></div>
+
+</div>
+
+<div class="card" id="random-card">
+
+<h2>랜덤 숫자 생성</h2>
+
+<div class="input-group">
+  <input id="rand-min" type="number" placeholder="최소값">
+  <input id="rand-max" type="number" placeholder="최대값">
+</div>
+
+<button onclick="runRandom()">생성하기</button>
+
+<div id="rand-time"></div>
+<div id="rand-result" class="result"></div>
+
+</div>
+
+<div class="card" id="dice-card">
+
+<h2>주사위</h2>
+
+<div class="input-group">
+  <input id="dice-count" type="number" min="1" max="10" placeholder="개수 (예: 2)">
+  <input id="dice-sides" type="number" min="2" placeholder="면 수 (예: 6)">
+</div>
+
+<button onclick="rollDice()">굴리기</button>
+
+<div id="dice-time"></div>
+<div id="dice-result" class="result"></div>
+<div id="dice-detail" class="result" style="font-size:14px; opacity:0.8;"></div>
+
+</div>
+
+<div class="card" id="gcdlcm-card">
+
+<h2>최대공약수 / 최소공배수</h2>
+
+<div class="mode-buttons">
+  <button id="gcd-mode" onclick="setMode('gcd')" class="active">최대공약수</button>
+  <button id="lcm-mode" onclick="setMode('lcm')">최소공배수</button>
+</div>
+
+<div class="input-group">
+  <input id="num1" type="number" placeholder="첫 번째 숫자">
+  <input id="num2" type="number" placeholder="두 번째 숫자">
+</div>
+
+<button onclick="calcGCDLCM()">계산하기</button>
+
+<div id="gcdlcm-time"></div>
+<div id="gcdlcm-result" class="result"></div>
+<div id="gcdlcm-detail" class="result" style="font-size:14px; opacity:0.8;"></div>
 
 </div>
 
@@ -936,6 +1158,13 @@ color: #6b6f76;
 <div class="footer-title">법적 고지</div>
 <a href="/tos" class="footer-link">이용 약관</a>
 <a href="/privacy-policy" class="footer-link">개인정보 보호 정책</a>
+
+<div class="footer-column">
+<div class="footer-title">프로젝트</div>
+
+<a href="https://github.com/METAINJI/META-PI" target="_blank" rel="noopener noreferrer" class="footer-link">오픈소스</a>
+</div>
+
 </div>
 </div>
 </div>
@@ -1061,9 +1290,17 @@ document.getElementById("result").innerHTML=output
 
 function changeHero(type, button){
 
-document.querySelectorAll(".nav button").forEach(btn=>{
-btn.classList.remove("active")
+document.querySelectorAll('.nav button').forEach(btn=>{
+  btn.classList.remove('active')
 })
+
+document.querySelectorAll('.dropdown button').forEach(btn=>{
+  btn.classList.remove('active')
+})
+
+if(button){
+  button.classList.add('active')
+}
 
 const navButtons = document.querySelectorAll(".nav button")
 
@@ -1071,8 +1308,7 @@ navButtons.forEach(btn=>{
 if(
     (type==="home" && btn.innerText.includes("홈")) ||
     (type==="search" && btn.innerText.includes("파이 검색")) ||
-    (type==="bot" && btn.innerText.includes("봇")) ||
-    (type==="github" && btn.innerText.includes("오픈"))
+    (type==="bot" && btn.innerText.includes("봇"))
 ){
     btn.classList.add("active")
 }
@@ -1119,8 +1355,99 @@ features.style.display="none"
 
 title.innerText="PI SEARCH"
 sub.innerText="파이 숫자를 탐험해보세요"
-desc.innerHTML="숫자를 검색하거나 특정 자리의 값을 확인해보세요."
+desc.innerHTML="숫자를 검색하거나 특정 자리의 값을 확인해보세요.<br>파이는 무한하기 때문에 소수 1억자리까지만 검색이 가능합니다."
 action.innerHTML=""
+
+document.querySelectorAll(".card").forEach(c=>{
+c.classList.remove("active")
+})
+
+document.getElementById("search-card").classList.add("active")
+document.getElementById("result-card").classList.add("active")
+}
+
+if(type==="prime"){
+mainContent.style.display="block"
+heroButtons.style.display="none"
+features.style.display="none"
+
+title.innerText="PRIME CHECK"
+sub.innerText="원하는 숫자가 소수인지 합성수인지 확인해보세요"
+desc.innerHTML="소수 판별기로 숫자의 성질을 알아보세요."
+
+document.querySelectorAll(".card").forEach(c=>{
+c.classList.remove("active")
+})
+
+document.getElementById("prime-card").classList.add("active")
+}
+
+if(type==="factor"){
+
+mainContent.style.display="block"
+heroButtons.style.display="none"
+features.style.display="none"
+
+title.innerText="FACTOR"
+sub.innerText="원하는 숫자를 소인수분해 해보세요"
+desc.innerHTML="숫자를 소수의 곱으로 분해해보세요."
+
+document.querySelectorAll(".card").forEach(c=>{
+c.classList.remove("active")
+})
+
+document.getElementById("factor-card").classList.add("active")
+}
+
+if(type==="random"){
+
+mainContent.style.display="block"
+heroButtons.style.display="none"
+features.style.display="none"
+
+title.innerText="RANDOM"
+sub.innerText="랜덤한 숫자를 생성해보세요"
+desc.innerHTML="범위 내에서 랜덤한 숫자를 뽑아보세요."
+
+document.querySelectorAll(".card").forEach(c=>{
+c.classList.remove("active")
+})
+
+document.getElementById("random-card").classList.add("active")
+}
+
+if(type==="dice"){
+
+mainContent.style.display="block"
+heroButtons.style.display="none"
+features.style.display="none"
+
+title.innerText="DICE"
+sub.innerText="주사위를 굴려보세요"
+desc.innerHTML="원하는 주사위 눈 개수로 주사위를 굴려보세요."
+
+document.querySelectorAll(".card").forEach(c=>{
+c.classList.remove("active")
+})
+
+document.getElementById("dice-card").classList.add("active")
+}
+
+if(type==="gcdlcm"){
+
+mainContent.style.display="block"
+heroButtons.style.display="none"
+features.style.display="none"
+
+title.innerText="GCD & LCM"
+sub.innerText="최대공약수와 최소공배수를 알아보세요"
+desc.innerHTML="원하는 두 수의 최대공약수와 최소공배수를 구해보세요."
+
+document.querySelectorAll(".card").forEach(c=>{
+c.classList.remove("active")
+})
+
+document.getElementById("gcdlcm-card").classList.add("active")
 }
 
 if(type==="bot"){
@@ -1131,16 +1458,6 @@ desc.innerHTML="파이 검색 기능을 디스코드에서도 사용해보세요
 features.style.display="none"
 
 action.innerHTML=`<button onclick="window.open('https://discord.com/oauth2/authorize?client_id=1482317676427874487&scope=bot%20applications.commands&permissions=274877975552')">봇 초대하기</button>`
-}
-
-if(type==="github"){
-title.innerText="OPEN SOURCE"
-sub.innerText="오픈소스를 확인해보세요"
-desc.innerHTML="이 프로젝트의 코드를 GitHub에서 확인할 수 있습니다.<br>자유롭게 수정을 제안하고 기여해보세요."
-
-features.style.display="none"
-
-action.innerHTML=`<button onclick="window.open('https://github.com/METAINJI/pi-search')">GitHub 보기</button>`
 }
 
 hero.classList.remove("fade-out")
@@ -1170,13 +1487,13 @@ if(e.key==="Enter") run()
 
 function nextResult(){
 
-  if(resultIndex + 1 >= results.length){
-    alert("마지막 결과입니다")
-    return
-  }
+if(resultIndex + 1 >= results.length){
+alert("마지막 결과입니다")
+return
+}
 
-  resultIndex++
-  showResult()
+resultIndex++
+showResult()
 }
 
 function showResult(){
@@ -1302,6 +1619,298 @@ function jumpTo(){
 document.getElementById("jumpIndex")
 .addEventListener("keypress",(e)=>{
   if(e.key==="Enter") jumpTo()
+})
+
+function checkPrime(){
+
+  let start = performance.now()
+
+  const input = document.getElementById("prime-input").value.trim()
+
+  if(!/^\d+$/.test(input)){
+    document.getElementById("prime-result").innerText = "⚠️ 자연수만 입력하세요"
+    document.getElementById("prime-detail").innerText = ""
+    document.getElementById("prime-time").innerText = ""
+    return
+  }
+
+  const value = parseInt(input)
+
+  if(value < 2){
+    document.getElementById("prime-result").innerText = "❌ 소수가 아닙니다"
+    document.getElementById("prime-detail").innerText = "1 이하의 수는 소수가 아닙니다."
+    
+    let end = performance.now()
+    document.getElementById("prime-time").innerText =
+      "계산 시간: " + ((end - start) / 1000).toFixed(4) + "초"
+
+    return
+  }
+
+  let steps = ""
+
+  for(let i=2; i<=Math.sqrt(value); i++){
+
+    steps += value + " ÷ " + i + " = " + (value / i) + "\n"
+
+    if(value % i === 0){
+
+      document.getElementById("prime-result").innerText = "❌ 소수가 아닙니다"
+      document.getElementById("prime-detail").innerText =
+        steps + "\n→ " + i + "로 나누어 떨어집니다."
+
+      let end = performance.now()
+      document.getElementById("prime-time").innerText =
+        "계산 시간: " + ((end - start) / 1000).toFixed(4) + "초"
+
+      return
+    }
+  }
+
+  document.getElementById("prime-result").innerText = "✅ 소수입니다"
+  document.getElementById("prime-detail").innerText =
+    steps + "\n→ 어떤 수로도 나누어 떨어지지 않습니다."
+
+  let end = performance.now()
+  document.getElementById("prime-time").innerText =
+    "계산 시간: " + ((end - start) / 1000).toFixed(4) + "초"
+}
+
+function factorize(){
+
+  let start = performance.now()
+
+  const input = document.getElementById("factor-input").value.trim()
+
+  if(!/^\d+$/.test(input)){
+    document.getElementById("factor-result").innerText = "⚠️ 자연수만 입력하세요"
+    document.getElementById("factor-detail").innerText = ""
+    document.getElementById("factor-time").innerText = ""
+    return
+  }
+
+  let n = parseInt(input)
+
+  if(n < 2){
+    document.getElementById("factor-result").innerText = "❌ 2 이상의 수를 입력하세요"
+    document.getElementById("factor-detail").innerText = ""
+    document.getElementById("factor-time").innerText = ""
+    return
+  }
+
+  let original = n
+  let factors = []
+  let steps = ""
+
+  for(let i=2; i<=Math.sqrt(n); i++){
+    while(n % i === 0){
+      factors.push(i)
+      steps += n + " ÷ " + i + " = " + (n / i) + "\n"
+      n = n / i
+    }
+  }
+
+  if(n > 1){
+    factors.push(n)
+  }
+
+  let resultText = factors.join(" × ")
+
+  document.getElementById("factor-result").innerText =
+    "결과: " + resultText
+
+  document.getElementById("factor-detail").innerText =
+    steps
+
+  let end = performance.now()
+
+  document.getElementById("factor-time").innerText =
+    "계산 시간: " + ((end - start) / 1000).toFixed(4) + "초"
+}
+
+function runRandom(){
+
+  let start = performance.now()
+
+  const minInput = document.getElementById("rand-min").value.trim()
+  const maxInput = document.getElementById("rand-max").value.trim()
+
+  if(!/^\d+$/.test(minInput) || !/^\d+$/.test(maxInput)){
+    document.getElementById("rand-result").innerText = "⚠️ 0 이상의 수를 입력하세요"
+    document.getElementById("rand-time").innerText = ""
+    return
+  }
+
+  const min = parseInt(minInput)
+  const max = parseInt(maxInput)
+
+  if(min > max){
+    document.getElementById("rand-result").innerText = "⚠️ 최소값이 최대값보다 클 수 없습니다"
+    document.getElementById("rand-time").innerText = ""
+    return
+  }
+
+  const result = Math.floor(Math.random() * (max - min + 1)) + min
+
+  document.getElementById("rand-result").innerText =
+    "🎲 결과: " + result
+
+  let end = performance.now()
+
+document.getElementById("rand-time").innerText =
+  "계산 시간: " + ((end - start) / 1000).toFixed(4) + "초"
+
+}
+
+function rollDice(){
+
+  let start = performance.now()
+
+  const countInput = document.getElementById("dice-count").value.trim()
+  const sidesInput = document.getElementById("dice-sides").value.trim()
+
+  if(!/^\d+$/.test(countInput) || !/^\d+$/.test(sidesInput)){
+    document.getElementById("dice-result").innerText = "⚠️ 0 이상의 수를 입력하세요"
+    document.getElementById("dice-detail").innerText = ""
+    document.getElementById("dice-time").innerText = ""
+    return
+  }
+
+  const count = parseInt(countInput)
+  const sides = parseInt(sidesInput)
+
+  if(count < 1 || sides < 2){
+    document.getElementById("dice-result").innerText = "⚠️ 올바른 값을 입력하세요 (개수 ≥1, 면 ≥2)"
+    document.getElementById("dice-detail").innerText = ""
+    document.getElementById("dice-time").innerText = ""
+    return
+  }
+
+  if(count > 10){
+  document.getElementById("dice-result").innerText = "❌ 주사위 개수는 최대 10개까지 가능합니다"
+  document.getElementById("dice-detail").innerText = ""
+  document.getElementById("dice-time").innerText = ""
+  return
+}
+
+  let results = []
+  let sum = 0
+
+  for(let i=0; i<count; i++){
+    let roll = Math.floor(Math.random() * sides) + 1
+    results.push(roll)
+    sum += roll
+  }
+
+  document.getElementById("dice-result").innerText =
+    "🎲 결과: " + results.join(", ")
+
+  document.getElementById("dice-detail").innerText =
+    "합계: " + sum
+
+  let end = performance.now()
+
+  document.getElementById("dice-time").innerText =
+    "계산 시간: " + ((end - start) / 1000).toFixed(4) + "초"
+}
+
+let calcMode = "gcd"
+
+function setMode(mode){
+
+  calcMode = mode
+
+  document.getElementById("gcd-mode").classList.remove("active")
+  document.getElementById("lcm-mode").classList.remove("active")
+
+  if(mode === "gcd"){
+    document.getElementById("gcd-mode").classList.add("active")
+  } else {
+    document.getElementById("lcm-mode").classList.add("active")
+  }
+
+}
+
+function gcd(a, b){
+  while(b !== 0){
+    let temp = b
+    b = a % b
+    a = temp
+  }
+  return a
+}
+
+function calcGCDLCM(){
+
+  let start = performance.now()
+
+  const input1 = document.getElementById("num1").value.trim()
+  const input2 = document.getElementById("num2").value.trim()
+
+  if(!/^\d+$/.test(input1) || !/^\d+$/.test(input2)){
+    document.getElementById("gcdlcm-result").innerText = "⚠️ 자연수만 입력하세요"
+    document.getElementById("gcdlcm-detail").innerText = ""
+    document.getElementById("gcdlcm-time").innerText = ""
+    return
+  }
+
+  let a = parseInt(input1)
+  let b = parseInt(input2)
+
+  if(a < 1 || b < 1){
+    document.getElementById("gcdlcm-result").innerText = "⚠️ 1 이상의 수를 입력하세요"
+    document.getElementById("gcdlcm-detail").innerText = ""
+    document.getElementById("gcdlcm-time").innerText = ""
+    return
+  }
+
+  let originalA = a
+  let originalB = b
+
+  let steps = ""
+
+  while(b !== 0){
+    steps += a + " % " + b + " = " + (a % b) + "\n"
+    let temp = b
+    b = a % b
+    a = temp
+  }
+
+  let gcdResult = a
+  let lcmResult = (originalA * originalB) / gcdResult
+
+  let resultText = ""
+
+  if(calcMode === "gcd"){
+    resultText = "최대공약수: " + gcdResult
+  } else {
+    resultText = "최소공배수: " + lcmResult
+  }
+
+  document.getElementById("gcdlcm-result").innerText = resultText
+
+  document.getElementById("gcdlcm-detail").innerText =
+    steps + "\n→ 마지막 나머지가 0이 될 때의 값이 결과값입니다."
+
+  let end = performance.now()
+
+  document.getElementById("gcdlcm-time").innerText =
+    "계산 시간: " + ((end - start) / 1000).toFixed(4) + "초"
+}
+
+window.addEventListener("load", () => {
+
+  const isDark = localStorage.getItem("dark") === "true"
+
+  if(isDark){
+    document.body.classList.add("dark")
+    document.getElementById("logo-img").src = "/static/dark_logo.png"
+    document.getElementById("darkToggle").checked = true
+  } else {
+    document.getElementById("logo-img").src = "/static/logo.png"
+    document.getElementById("darkToggle").checked = false
+  }
+
 })
 
 function goHome(){
