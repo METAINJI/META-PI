@@ -84,6 +84,7 @@ async def on_application_command_error(interaction: nextcord.Interaction, error:
             await interaction.response.send_message(embed=embed, view=ErrorView(), ephemeral=False)
     except Exception as e:
         print(f"⚠️ 오류 임베드 전송 실패: {e}")
+        
 
 bot_start_time = time.time()
 
@@ -126,14 +127,14 @@ async def 핑(
     if 모드 is None:
         모드 = "basic"
 
-    cpu = psutil.cpu_percent(interval=0.5)
-
-    latency = round(bot.latency * 1000)
+    cpu = psutil.cpu_percent(interval=None)
     mem = psutil.virtual_memory()
 
     ram_used = mem.used / (1024**3)
     ram_total = mem.total / (1024**3)
     ram_percent = mem.percent
+
+    latency = round(bot.latency * 1000)
 
     uptime_sec = time.time() - bot_start_time
     uptime_str = format_uptime(uptime_sec)
@@ -171,59 +172,40 @@ async def 핑(
         timestamp=datetime.datetime.now(datetime.UTC)
     )
 
-    embed.add_field(name=f"⏱️ 핑 {latency_status}", value=f"{latency}ms\n`{latency_bar}`", inline=False)
-    embed.add_field(name=f"🖥️ CPU 사용량 {cpu_status}", value=f"{cpu}%\n`{cpu_bar}`", inline=False)
-    embed.add_field(name=f"💾 RAM 사용량 {ram_status}",
-                    value=f"{ram_used:.2f}GB / {ram_total:.2f}GB ({ram_percent}%)\n`{ram_bar}`",
-                    inline=False)
-    embed.add_field(name="⏳ 서버 가동 시간", value=uptime_str, inline=False)
+    embed.add_field(
+        name=f"⏱️ 핑 {latency_status}",
+        value=f"{latency}ms\n`{latency_bar}`",
+        inline=False
+    )
+
+    embed.add_field(
+        name=f"🖥️ CPU 사용량 {cpu_status}",
+        value=f"{cpu}%\n`{cpu_bar}`",
+        inline=False
+    )
+
+    embed.add_field(
+        name=f"💾 RAM 사용량 {ram_status}",
+        value=f"{ram_used:.2f}GB / {ram_total:.2f}GB ({ram_percent}%)\n`{ram_bar}`",
+        inline=False
+    )
+
+    embed.add_field(
+        name="⏳ 서버 가동 시간",
+        value=uptime_str,
+        inline=False
+    )
 
     if 모드 == "advanced":
-        embed.add_field(name="", value="**─── 🛠️ 고급 정보 ───**", inline=False)
+        embed.add_field(name="", value="**🛠️ 고급 정보**", inline=False)
 
         guilds = len(bot.guilds)
         users = sum(g.member_count or 0 for g in bot.guilds)
         shards = bot.shard_count or 1
 
-        net1 = psutil.net_io_counters()
-        await asyncio.sleep(0.2) 
-        net2 = psutil.net_io_counters()
-
-        upload_speed = (net2.bytes_sent - net1.bytes_sent) * 8 / (1024**2) / 0.2
-        download_speed = (net2.bytes_recv - net1.bytes_recv) * 8 / (1024**2) / 0.2
-
-        interfaces = psutil.net_if_stats()
-        net_io_pernic = psutil.net_io_counters(pernic=True)
-
-        iface_status_list = []
-
-        for name, stats in interfaces.items():
-            if name not in net_io_pernic:
-                continue
-
-            sent = net_io_pernic[name].bytes_sent / (1024**2)
-            recv = net_io_pernic[name].bytes_recv / (1024**2)
-
-            speed = stats.speed if stats.speed > 0 else 100
-
-            bar = create_bar(speed, max_value=100)
-            status_emoji = "🟢" if stats.isup else "🔴"
-
-            iface_status_list.append(
-                f"{name} {status_emoji} `{bar}` ↑{sent:.1f}MB ↓{recv:.1f}MB ({speed}Mbps)"
-            )
-
-        iface_status_str = "\n".join(iface_status_list)
-
-        if len(iface_status_str) > 1000:
-            iface_status_str = iface_status_str[:1000] + "\n..."
-
-        embed.add_field(name="⬆️ 업로드 속도", value=f"{upload_speed:.2f} Mbps", inline=True)
-        embed.add_field(name="⬇️ 다운로드 속도", value=f"{download_speed:.2f} Mbps", inline=True)
         embed.add_field(name="🌍 길드 수", value=str(guilds), inline=True)
         embed.add_field(name="👥 사용자 수", value=str(users), inline=True)
         embed.add_field(name="🧩 샤드", value=str(shards), inline=True)
-        embed.add_field(name="💻 네트워크 인터페이스 상태", value=iface_status_str, inline=False)
 
     await interaction.followup.send(embed=embed)
 
@@ -518,6 +500,78 @@ async def dice(
 
     value = random.randint(1, sides)
     await interaction.response.send_message(f"🎲 {sides}면 주사위 결과: {value}")
+
+class RetryView(nextcord.ui.View):
+    def __init__(self, 시행, 확률):
+        super().__init__(timeout=60)
+        self.시행 = 시행
+        self.확률 = 확률
+
+    @nextcord.ui.button(label="🔁 다시 실행", style=nextcord.ButtonStyle.green)
+    async def retry(self, button: nextcord.ui.Button, interaction: nextcord.Interaction):
+        success = 0
+        p = self.확률 / 100
+
+        for _ in range(self.시행):
+            if random.random() < p:
+                success += 1
+
+        실패 = self.시행 - success
+        실제확률 = success / self.시행
+
+        await interaction.response.edit_message(
+            content=(
+                f"🎲 **확률 시뮬레이션 결과 (재실행)**\n"
+                f"시행 횟수: {self.시행}\n"
+                f"설정 확률: {self.확률}%\n\n"
+                f"✅ 성공: {success}\n"
+                f"❌ 실패: {실패}\n"
+                f"📊 실제 확률: {실제확률:.4f} ({실제확률*100:.2f}%)"
+            ),
+            view=self
+        )
+
+@bot.slash_command(name="확률실험", description="확률 시뮬레이션을 실행합니다.")
+async def probability_sim(
+    interaction: nextcord.Interaction,
+    시행: int = nextcord.SlashOption(description="반복 횟수"),
+    확률: float = nextcord.SlashOption(description="성공 확률 (0~100)")
+):
+
+    if 시행 > 1_000_000:
+        await interaction.response.send_message("❌ 시행 횟수는 최대 1,000,000까지 가능합니다.")
+        return
+    
+    if 시행 <= 0:
+        await interaction.response.send_message("❌ 시행 횟수는 1 이상이어야 합니다.")
+        return
+    
+    if not (0 <= 확률 <= 100):
+        await interaction.response.send_message("❌ 확률은 0~100 사이로 입력해주세요.")
+        return
+    
+    p = 확률 / 100
+
+    success = 0
+
+    for _ in range(시행):
+        if random.random() < p:
+            success += 1
+
+    실패 = 시행 - success
+    실제확률 = success / 시행
+
+    view = RetryView(시행, 확률)
+
+    await interaction.response.send_message(
+        f"🎲 **확률 시뮬레이션 결과**\n"
+        f"시행 횟수: {시행}\n"
+        f"설정 확률: {확률}%\n\n"
+        f"✅ 성공: {success}\n"
+        f"❌ 실패: {실패}\n"
+        f"📊 실제 확률: {실제확률:.4f} ({실제확률*100:.2f}%)",
+        view=view
+    )
 
 async def run_bot():
 
