@@ -70,6 +70,22 @@ gap:10px;
 justify-content:center;
 }
 
+.hero-buttons button{
+  box-shadow:
+    0 6px 15px rgba(0,0,0,0.15),
+    0 2px 6px rgba(0,0,0,0.1);
+  
+  transition: all 0.2s ease;
+}
+
+.hero-buttons button:hover{
+  transform: translateY(-2px);
+  
+  box-shadow:
+    0 10px 25px rgba(0,0,0,0.2),
+    0 4px 10px rgba(0,0,0,0.15);
+}
+
 .hero::before{
 content:none;
 position:absolute;
@@ -162,6 +178,36 @@ animation:float1 6s ease-in-out infinite;
   background-size:300px;
   opacity:1;
   background-size:cover;
+}
+
+#intro{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100dvh;
+
+  background:white;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  z-index:99999;
+
+  transition:opacity 0.5s ease;
+}
+
+#intro video{
+  width:100%;
+  height:100%;
+
+  object-fit:contain;
+}
+
+#intro.hide{
+  opacity:0;
+  pointer-events:none;
 }
 
 .hero-content{
@@ -296,16 +342,14 @@ pointer-events:none;
 transition:all 0.25s ease;
 z-index:100;
 
-border-radius:16px;
-border:1px solid rgba(255,255,255,0.15);
-
-background:rgba(255,255,255,0.9);
-backdrop-filter:blur(24px);
--webkit-backdrop-filter:blur(24px);
+background:rgba(255,255,255,1);
 
 transform:translateY(10px);
 opacity:0;
 transition:all 0.25s ease;
+
+border-radius:16px;
+border:1px solid rgba(255,255,255,1);
 
 box-shadow:
 0 10px 30px rgba(0,0,0,0.15),
@@ -329,13 +373,6 @@ box-shadow:
   right:0;
   bottom:-12px;
   height:12px;
-}
-
-body.dark .dropdown{
-  background:rgba(30,30,35,0.6);
-  backdrop-filter: blur(12px) saturate(180%) contrast(1.2);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.1);
 }
 
 .more-dropdown{
@@ -440,20 +477,15 @@ overflow:visible;
 
 position:sticky;
 top: 0;
-z-index: 1000;
-box-shadow:0 2px 10px rgba(0,0,0,0.05);
+z-index: 100000;
 
-backdrop-filter:blur(12px);
-background: rgba(255,255,255,0.6);
--webkit-backdrop-filter:blur(12px);
+box-shadow:
+0 8px 25px rgba(0,0,0,0.15),
+0 2px 8px rgba(0,0,0,0.1);
+
+background: rgba(255,255,255,1);
 
 animation:slideDown 1.2s ease;
-}
-
-body.dark header{
-backdrop-filter:blur(12px);
-background: rgba(0,0,0,0.7);
--webkit-backdrop-filter:blur(12px);
 }
 
 @keyframes slideDown{
@@ -761,6 +793,20 @@ opacity:0;
 pointer-events:none;
 transition:0.3s;
 z-index:5500;
+
+box-shadow:
+0 8px 20px rgba(0,0,0,0.2),
+0 3px 8px rgba(0,0,0,0.15);
+
+transition: all 0.2s ease;
+}
+
+#topBtn:hover{
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 12px 30px rgba(0,0,0,0.25),
+    0 5px 12px rgba(0,0,0,0.2);
 }
 
 #topBtn.show{
@@ -868,6 +914,12 @@ margin-right:6px;
 
 <body>
 
+<div id="intro">
+<video id="introVideo" autoplay muted playsinline>
+<source src="/static/enter.mp4" type="video/mp4">
+</video>
+</div>
+
 <header>
 
 <div class="logo" onclick="goHome()">
@@ -932,7 +984,7 @@ margin-right:6px;
 <div id="hero-action"></div>
 
 <div class="hero-buttons" id="hero-buttons" style="display:none;">
-<button onclick="document.getElementById('input').focus()">시작하기</button>
+<button id="startBtn">시작하기</button>
 </div>
 
 </div>
@@ -1067,7 +1119,7 @@ margin-right:6px;
 <h2>소수 판별</h2>
 
 <div class="input-group">
-<input id="prime-input" placeholder="숫자를 입력하세요">
+<input id="prime-input" type="number" placeholder="숫자를 입력하세요">
 </div>
 
 <button onclick="checkPrime()">판별하기</button>
@@ -1177,13 +1229,15 @@ margin-right:6px;
 </div>
 </div>
 </div>
-  
+
 <div class="footer-bottom">
 <span>&copy; 2026 METAINJI Dev. All rights reserved.</span>
 </div>
 </footer>
 
 <script>
+
+let currentType = "home"
 
 let results=[]
 let resultIndex=0
@@ -1343,8 +1397,10 @@ setTimeout(()=>{
 
 heroBg.className = "hero " + type
 
-heroButtons.style.display="none"
 mainContent.style.display="none"
+
+setEnterAction(type)
+currentType = type
 
 if(type==="home"){
 title.innerText="META Pi"
@@ -1362,6 +1418,8 @@ heroButtons.style.display="flex"
 mainContent.style.display="block"
 features.style.display="none"
 
+heroButtons.style.display = "flex"
+
 title.innerText="PI SEARCH"
 sub.innerText="파이 숫자를 탐험해보세요"
 desc.innerHTML="숫자를 검색하거나 특정 자리의 값을 확인해보세요.<br>파이는 무한하기 때문에 소수 1억자리까지만 검색이 가능합니다."
@@ -1377,7 +1435,7 @@ document.getElementById("result-card").classList.add("active")
 
 if(type==="prime"){
 mainContent.style.display="block"
-heroButtons.style.display="none"
+heroButtons.style.display = "flex"
 features.style.display="none"
 
 title.innerText="PRIME CHECK"
@@ -1394,7 +1452,7 @@ document.getElementById("prime-card").classList.add("active")
 if(type==="factor"){
 
 mainContent.style.display="block"
-heroButtons.style.display="none"
+heroButtons.style.display = "flex"
 features.style.display="none"
 
 title.innerText="FACTOR"
@@ -1411,7 +1469,7 @@ document.getElementById("factor-card").classList.add("active")
 if(type==="random"){
 
 mainContent.style.display="block"
-heroButtons.style.display="none"
+heroButtons.style.display = "flex"
 features.style.display="none"
 
 title.innerText="RANDOM"
@@ -1428,7 +1486,7 @@ document.getElementById("random-card").classList.add("active")
 if(type==="dice"){
 
 mainContent.style.display="block"
-heroButtons.style.display="none"
+heroButtons.style.display = "flex"
 features.style.display="none"
 
 title.innerText="DICE"
@@ -1445,7 +1503,7 @@ document.getElementById("dice-card").classList.add("active")
 if(type==="gcdlcm"){
 
 mainContent.style.display="block"
-heroButtons.style.display="none"
+heroButtons.style.display = "flex"
 features.style.display="none"
 
 title.innerText="GCD & LCM"
@@ -1955,6 +2013,63 @@ window.addEventListener("click", (e)=>{
     settingsBtn.parentElement.classList.remove("open")
   }
 })
+
+window.addEventListener("load", ()=>{
+
+  const intro = document.getElementById("intro")
+
+  setTimeout(()=>{
+    intro.classList.add("hide")
+
+    setTimeout(()=>{
+      intro.remove()
+    }, 500)
+  }, 1200)
+
+})
+
+document.addEventListener("click", (e)=>{
+
+  if(e.target.id === "startBtn"){
+
+    const map = {
+      search: () => document.getElementById("input")?.focus(),
+      prime: () => document.getElementById("prime-input")?.focus(),
+      factor: () => document.getElementById("factor-input")?.focus(),
+      random: () => document.getElementById("rand-min")?.focus(),
+      dice: () => document.getElementById("dice-count")?.focus(),
+      gcdlcm: () => document.getElementById("num1")?.focus()
+    }
+
+    map[currentType]?.()
+
+  }
+
+})
+
+function setEnterAction(type){
+
+  const map = {
+    search: ["input", run],
+    prime: ["prime-input", checkPrime],
+    factor: ["factor-input", factorize],
+    random: ["rand-max", runRandom],
+    dice: ["dice-sides", rollDice],
+    gcdlcm: ["num2", calcGCDLCM]
+  }
+
+  const target = map[type]
+  if(!target) return
+
+  const [id, fn] = target
+  const el = document.getElementById(id)
+
+  if(!el) return
+
+  el.onkeypress = (e)=>{
+    if(e.key === "Enter") fn()
+  }
+}
 
 window.onload = () => {
     changeHero("home", document.querySelector('.nav button'))
