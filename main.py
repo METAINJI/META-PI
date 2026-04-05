@@ -9,8 +9,6 @@ from web import app
 
 def run_web():
     try:
-        print("Starting web server...")
-
         uvicorn.run(
             app,
             host="0.0.0.0",
