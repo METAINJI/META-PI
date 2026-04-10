@@ -87,17 +87,24 @@ justify-content:center;
 }
 
 .hero::before{
-content:none;
+content:"";
 position:absolute;
-width:400px;
-height:400px;
-background:var(--accent);
-opacity:0.15;
-border-radius:50%;
-top:50px;
-right:10%;
+top:0;
+left:0;
+width:100%;
+height:100%;
+
+background:rgba(0,0,0,0.1);
+
+border-radius:0;
+animation:none;
+
+z-index:1;
 pointer-events:none;
-animation:float1 6s ease-in-out infinite;
+}
+
+body.dark .hero::before{
+background:rgba(0,0,0,0.5);
 }
 
 .hero::after{
@@ -109,7 +116,6 @@ background:var(--accent);
 opacity:0.1;
 bottom:-100px;
 left:10%;
-border-radius:50%;
 pointer-events:none;
 animation:float1 6s ease-in-out infinite;
 }
@@ -124,8 +130,43 @@ animation:float1 6s ease-in-out infinite;
 50%{transform:translateY(15px);}
 }
 
-.hero.home{
-  background:url('/static/home.png') no-repeat center;
+.hero.home.theme-main{
+  background:url('/static/home-main.png') center/cover no-repeat;
+  background-size:300px;
+  opacity:1;
+  background-size:cover;
+}
+
+.hero.home.theme-blue{
+  background:url('/static/home-blue.png') center/cover no-repeat;
+  background-size:300px;
+  opacity:1;
+  background-size:cover;
+}
+
+.hero.home.theme-green{
+  background:url('/static/home-green.png') center/cover no-repeat;
+  background-size:300px;
+  opacity:1;
+  background-size:cover;
+}
+
+.hero.home.theme-yellow{
+  background:url('/static/home-yellow.png') center/cover no-repeat;
+  background-size:300px;
+  opacity:1;
+  background-size:cover;
+}
+
+.hero.home.theme-red{
+  background:url('/static/home-red.png') center/cover no-repeat;
+  background-size:300px;
+  opacity:1;
+  background-size:cover;
+}
+
+.hero.home.theme-black{
+  background:url('/static/home-black.png') center/cover no-repeat;
   background-size:300px;
   opacity:1;
   background-size:cover;
@@ -458,6 +499,65 @@ body.dark{
 --border:#2b2f36;
 }
 
+body.theme-main{
+  --accent:#aa77fc;
+}
+
+body.theme-blue{
+  --accent:#5865F2;
+}
+
+body.theme-green{
+  --accent:#2ecc71;
+}
+
+body.theme-yellow{
+  --accent:#f1c40f;
+}
+
+body.theme-red{
+  --accent:#e74c3c;
+}
+
+body.theme-black{
+  --accent:#1a1a1a;
+}
+
+.theme-buttons{
+  display:flex;
+  gap:6px;
+  width:100%;
+  flex-wrap:wrap;
+  justify-content:flex-start;
+}
+
+.theme-buttons button{
+  padding:4px;
+  border-radius:8px;
+  background:transparent;
+  border:1px solid var(--border);
+  cursor:pointer;
+  flex:0 0 auto;
+}
+
+.theme-buttons img{
+  width:32px;
+  height:32px;
+  border-radius:6px;
+  object-fit:cover;
+}
+
+.theme-buttons button:hover{
+  transform:translateY(-3px);
+  box-shadow:0 6px 15px rgba(0,0,0,0.2);
+}
+
+.theme-buttons button.active{
+  border:2px solid var(--accent);
+  transform:scale(1.02);
+  box-shadow:0 0 4px var(--accent);
+}
+
 body{
 margin:0;
 font-family:system-ui;
@@ -778,15 +878,15 @@ position:fixed;
 bottom:30px;
 right:30px;
 
-width:50px;
-height:50px;
+width:42px;
+height:42px;
 padding:0;
-font-size:18px;
+font-size:16px;
 border:none;
 border-radius:12px;
 
-background:var(--accent);
-color:white;
+background:white;
+color:#404040;
 cursor:pointer;
 
 opacity:0;
@@ -799,6 +899,11 @@ box-shadow:
 0 3px 8px rgba(0,0,0,0.15);
 
 transition: all 0.2s ease;
+}
+
+body.dark #topBtn{
+background:#2a2d31;
+color:#ddd;
 }
 
 #topBtn:hover{
@@ -955,6 +1060,7 @@ margin-right:6px;
 
 <div class="dropdown settings-dropdown" id="settingsMenu">
 <div class="dropdown-column">
+
 <div class="toggle-item">
 <span>다크 모드</span>
 <label class="switch">
@@ -962,10 +1068,39 @@ margin-right:6px;
 <span class="slider"></span>
 </label>
 </div>
-</div>
-</div>
+
+<div class="toggle-item" style="flex-direction:column; align-items:flex-start;">
+<span style="margin-bottom:8px;">테마</span>
+
+<div class="theme-buttons">
+<button onclick="setTheme('main')">
+<img src="/static/main-color.png">
+</button>
+
+<button onclick="setTheme('blue')">
+<img src="/static/blue-color.png">
+</button>
+
+<button onclick="setTheme('green')">
+<img src="/static/green-color.png">
+</button>
+
+<button onclick="setTheme('yellow')">
+<img src="/static/yellow-color.png">
+</button>
+
+<button onclick="setTheme('red')">
+<img src="/static/red-color.png">
+</button>
+
+<button onclick="setTheme('black')">
+<img src="/static/black-color.png">
+</button>
 </div>
 
+</div>
+
+</div>
 </div>
 
 </header>
@@ -999,7 +1134,7 @@ margin-right:6px;
 <div class="feature-card" onclick="changeHero('search', this)">
     
 <div class="card-top">
-<h3>🔎 파이 검색</h3>
+<h3>파이 검색</h3>
 <p>파이 속에서 원하는 숫자를 찾아보세요.</p>
 </div>
 
@@ -1011,7 +1146,7 @@ margin-right:6px;
 
 <div class="feature-card" onclick="changeHero('prime', this)">
 <div class="card-top">
-<h3>🔢 소수판별</h3>
+<h3>소수판별</h3>
 <p>원하는 숫자가 소수인지 합성수인지 확인해보세요.</p>
 </div>
 <div class="card-image">
@@ -1022,7 +1157,7 @@ margin-right:6px;
 <div class="feature-card" onclick="changeHero('factor', this)">
 
 <div class="card-top">
-<h3>🧮 소인수분해</h3>
+<h3>소인수분해</h3>
 <p>원하는 숫자를 소인수분해 해보세요.</p>
 </div>
 
@@ -1035,7 +1170,7 @@ margin-right:6px;
 <div class="feature-card" onclick="changeHero('random', this)">
 
 <div class="card-top">
-<h3>🔀 랜덤</h3>
+<h3>랜덤</h3>
 <p>범위 내에서 랜덤한 숫자를 뽑아보세요</p>
 </div>
 
@@ -1048,7 +1183,7 @@ margin-right:6px;
 <div class="feature-card" onclick="changeHero('dice', this)">
 
 <div class="card-top">
-<h3>🎲 주사위</h3>
+<h3>주사위</h3>
 <p>원하는 주사위 눈 개수로 주사위를 굴려보세요.</p>
 </div>
 
@@ -1061,7 +1196,7 @@ margin-right:6px;
 <div class="feature-card" onclick="changeHero('bot', this)">
 
 <div class="card-top">
-<h3>🖥️ 디스코드 봇</h3>
+<h3>디스코드 봇</h3>
 <p>디스코드에서 파이를 검색해보세요.</p>
 </div>
 
@@ -1205,7 +1340,7 @@ margin-right:6px;
 
 </div>
 
-<button id="topBtn">▲</button>
+<button id="topBtn">⭡</button>
 
 <footer class="site-footer">
 <div class="footer-content">
@@ -1395,7 +1530,12 @@ hero.classList.add("fade-out")
 
 setTimeout(()=>{
 
-heroBg.className = "hero " + type
+heroButtons.style.display = "none"
+action.innerHTML = ""
+
+const theme = localStorage.getItem("theme") || "main"
+
+heroBg.className = "hero " + type + " theme-" + theme
 
 mainContent.style.display="none"
 
@@ -2070,6 +2210,81 @@ function setEnterAction(type){
     if(e.key === "Enter") fn()
   }
 }
+
+function setTheme(theme){
+
+  document.body.classList.remove(
+    "theme-main",
+    "theme-blue",
+    "theme-green",
+    "theme-yellow",
+    "theme-red",
+    "theme-black"
+  )
+
+  if(theme === "main"){
+    document.body.classList.add("theme-main")
+  }
+  else if(theme === "blue"){
+    document.body.classList.add("theme-blue")
+  }
+  else if(theme === "green"){
+    document.body.classList.add("theme-green")
+  }
+  else if(theme === "yellow"){
+    document.body.classList.add("theme-yellow")
+  }
+  else if(theme === "red"){
+    document.body.classList.add("theme-red")
+  }
+  else if(theme === "black"){
+    document.body.classList.add("theme-black")
+  }
+
+  localStorage.setItem("theme", theme)
+
+  document.body.classList.remove(
+    "theme-main",
+    "theme-blue",
+    "theme-green",
+    "theme-yellow",
+    "theme-red", 
+    "theme-black"
+  )
+
+  document.body.classList.add("theme-" + theme)
+
+  document.querySelectorAll(".theme-buttons button").forEach(btn=>{
+    btn.classList.remove("active")
+  })
+
+  const target = document.querySelector(
+    `.theme-buttons button[onclick="setTheme('${theme}')"]`
+  )
+
+  if(target){
+    target.classList.add("active")
+  }
+
+  changeHero(currentType)
+
+}
+
+window.addEventListener("load", ()=>{
+  const saved = localStorage.getItem("theme")
+
+  if(saved){
+    document.body.classList.add("theme-" + saved)
+
+    const target = document.querySelector(
+      `.theme-buttons button[onclick="setTheme('${saved}')"]`
+    )
+
+    if(target){
+      target.classList.add("active")
+    }
+  }
+})
 
 window.onload = () => {
     changeHero("home", document.querySelector('.nav button'))
